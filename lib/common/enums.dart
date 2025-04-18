@@ -7,3 +7,4 @@ enum Level{
 enum TaskSchedule{
   doNotRepeat, daily, customWeek, alternateDays, monthly,
 }
+
