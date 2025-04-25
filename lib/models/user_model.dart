@@ -1,5 +1,4 @@
-
-
+import 'package:color_log/color_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class UserModel {
@@ -9,7 +8,7 @@ class UserModel {
   final String? photoURL;
   final String? phoneNumber;
   final bool? emailVerified;
-  final DateTime? dob;
+  final DateTime? dobMonthDate;
 
   UserModel({
     required this.uid,
@@ -18,7 +17,7 @@ class UserModel {
     this.phoneNumber,
     this.photoURL,
     this.emailVerified,
-    this.dob
+    this.dobMonthDate,
   });
 
   UserModel copyWith({
@@ -28,7 +27,7 @@ class UserModel {
     String? photoURL,
     String? phoneNumber,
     bool? emailVerified,
-    DateTime? dob,
+    DateTime? dobMonthDate,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -37,7 +36,7 @@ class UserModel {
       photoURL: photoURL ?? this.photoURL,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       emailVerified: emailVerified ?? this.emailVerified,
-      dob: dob ?? this.dob,
+      dobMonthDate: dobMonthDate ?? this.dobMonthDate,
     );
   }
 
@@ -50,7 +49,6 @@ class UserModel {
       phoneNumber: user.phoneNumber,
       photoURL: user.photoURL,
       emailVerified: user.emailVerified,
-
     );
   }
 
@@ -63,12 +61,14 @@ class UserModel {
       'phoneNumber': phoneNumber,
       'photoURL': photoURL,
       'emailVerified': emailVerified,
-      'dateOfBirth': dob?.toIso8601String() ?? '',
+      // 'dateOfBirth': dob?.toIso8601String() ?? '',
+      'dobMonthDate': dateToDobMDString(dobMonthDate),
     };
   }
 
   // Method to create UserModel from JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    clog.info('UserModel JSON = $json');
     return UserModel(
       uid: json['uid'],
       displayName: json['displayName'],
@@ -76,9 +76,26 @@ class UserModel {
       phoneNumber: json['phoneNumber'],
       photoURL: json['photoURL'],
       emailVerified: json['emailVerified'],
-      dob: json['dateOfBirth'] != null && json['dateOfBirth'].isNotEmpty ? DateTime.parse(json['dateOfBirth']) : null,
+      dobMonthDate: dobMDStringToDate(json['dobMonthDate']),
     );
   }
 
+  static DateTime? dobMDStringToDate(dynamic dobMD) {
+    if (dobMD == null || dobMD.isEmpty) return null;
+    final parts = dobMD.split('-');
+    if (parts.length == 2) {
+      final month = int.tryParse(parts[0]);
+      final day = int.tryParse(parts[1]);
+      if (month != null && day != null) {
+        return DateTime(DateTime.now().year, month, day);
+      }
+    }
+    return null;
+  }
 
+  static String? dateToDobMDString(DateTime? date) {
+    return date == null
+        ? ''
+        : '${(date.month).toString().padLeft(2, '0')}-${(date.day).toString().padLeft(2, '0')}';
+  }
 }

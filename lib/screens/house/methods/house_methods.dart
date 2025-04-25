@@ -1,3 +1,4 @@
+import 'package:color_log/color_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/common/methods.dart';
 import 'package:flatypus/common/methods/show_confirmation_dialog.dart';
@@ -8,6 +9,7 @@ import 'package:flatypus/screens/app.dart';
 import 'package:flatypus/screens/home/home_screen.dart';
 import 'package:flatypus/screens/house/methods/add_house_confirmation_dialog.dart';
 import 'package:flatypus/screens/house/search_house.dart';
+import 'package:flatypus/services/cloud_messaging/firebase_function_service.dart';
 import 'package:flatypus/services/firestore/house_service.dart';
 import 'package:flatypus/services/global_context.dart';
 import 'package:flatypus/state/controllers/loading_controller.dart';
@@ -84,7 +86,9 @@ class HouseMethods {
     ref.read(loadingControllerProvider.notifier).state = false;
     if (response != null && context.mounted) {
       final isHouseAdded = await showAddHouseConfirmationDialog(
-          context: context, house: response);
+        context: context,
+        house: response,
+      );
       if (isHouseAdded) {
         ref.read(selectedPageProvider.notifier).state = AppScreens.home.index;
         pushAndRemoveAll(const App());
@@ -106,16 +110,26 @@ class HouseMethods {
     if (currentUser == null) return;
     final user = UserModel.fromFirebaseUser(currentUser);
 
-    final isHouseAdded =
-        await HouseService().addUserToHouse(house.houseKey!, user);
+    final isHouseAdded = await HouseService().addUserToHouse(
+      house.houseKey!,
+      user,
+    );
     if (isHouseAdded) {
       ref.read(houseProvider.notifier).setInitialState(house);
+      clog.warning('\nHouse info 1 : ${ref.read(houseProvider)}\n');
       ref.invalidate(tasksProvider);
       ref.invalidate(usersProvider);
       ref.invalidate(spacesProvider);
       ref.invalidate(houseProvider);
+      clog.warning('\nHouse info 2 : ${ref.read(houseProvider)}\n');
 
       showSuccessSnackbar(label: 'House added successfully!');
+      // -- send notifications to flatmates and new user
+      FirebaseFunctionService().callNewUserAddedNotification(
+        ref: ref,
+        houseId: house.id,
+        userId: user.uid,
+      );
       // return;
     } else {
       showErrorSnackbar(label: 'Failed to add house! Please try again');
@@ -125,8 +139,10 @@ class HouseMethods {
 
   // static Future<void> deleteHouseMethodOnTap(WidgetRef ref) async {}
 
-  static Future<void> removeUserFromHouse(
-      {required WidgetRef ref, String? userId}) async {
+  static Future<void> removeUserFromHouse({
+    required WidgetRef ref,
+    String? userId,
+  }) async {
     bool currentUser = false;
 
     try {
@@ -141,9 +157,10 @@ class HouseMethods {
       }
       if (userId == null) return;
       final confirmation = await showCustomConfirmationDialog(
-        noteText: currentUser
-            ? 'This will unlink you from the house and delete all your tasks.'
-            : 'This will remove the user from the house and delete all their tasks.',
+        noteText:
+            currentUser
+                ? 'This will unlink you from the house and delete all your tasks.'
+                : 'This will remove the user from the house and delete all their tasks.',
       );
       if (confirmation == null || !confirmation) return;
       final houseKey = ref.read(houseProvider)?.id;
@@ -155,8 +172,10 @@ class HouseMethods {
       if (!allTasksRemoved) {
         throw Exception();
       }
-      final isUserRemoved = await HouseService()
-          .unlinkUserFromHouse(houseKey: houseKey, userId: userId);
+      final isUserRemoved = await HouseService().unlinkUserFromHouse(
+        houseKey: houseKey,
+        userId: userId,
+      );
       if (isUserRemoved) {
         if (currentUser) {
           showSuccessSnackbar(label: 'House was unlinked successfully!');
@@ -188,8 +207,8 @@ class HouseMethods {
     //if house is not added, go to add house screen
     push(GlobalContext.navigationKey.currentContext!, SearchHouseScreen());
     showSuccessSnackbar(
-        label:
-            'You are not associated with any house. Please add a House first!');
+      label: 'You are not associated with any house. Please add a House first!',
+    );
     return false;
   }
 
@@ -211,7 +230,8 @@ class HouseMethods {
       }
     } catch (e) {
       showErrorSnackbar(
-          label: 'Unable to open whatsApp at the moment. Please try later!');
+        label: 'Unable to open whatsApp at the moment. Please try later!',
+      );
     }
   }
 

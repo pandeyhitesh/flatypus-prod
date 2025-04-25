@@ -2,8 +2,10 @@ import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:color_log/color_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/models/user_model.dart';
+import 'package:flatypus/services/cloud_messaging/push_notification_service.dart';
 import 'package:flatypus/services/firestore/collentions.dart';
 import 'package:flatypus/services/firestore/user_services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,23 +20,29 @@ class HouseService {
   // Generate a unique roomId in the format "xxx-xxx-xxxx"
   String generateRoomId() {
     const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    String getRandomString(int length) =>
-        String.fromCharCodes(Iterable.generate(
-            length, (_) => chars.codeUnitAt(Random().nextInt(chars.length))));
+    String getRandomString(int length) => String.fromCharCodes(
+      Iterable.generate(
+        length,
+        (_) => chars.codeUnitAt(Random().nextInt(chars.length)),
+      ),
+    );
     return 'FLTP-${getRandomString(3)}-${getRandomString(4)}';
   }
 
   // Create or get a room
-  Future<HouseModel?> createOrGetHouse(
-      {required String displayName, required String address}) async {
+  Future<HouseModel?> createOrGetHouse({
+    required String displayName,
+    required String address,
+  }) async {
     String roomId = generateRoomId();
     HouseModel? existingRoom;
 
     do {
-      final querySnapshot = await _db
-          .collection(collection)
-          .where('houseKey', isEqualTo: roomId)
-          .get();
+      final querySnapshot =
+          await _db
+              .collection(collection)
+              .where('houseKey', isEqualTo: roomId)
+              .get();
       if (querySnapshot.docs.isNotEmpty) {
         existingRoom = HouseModel.fromJson(querySnapshot.docs.first.data());
       } else {
@@ -68,18 +76,21 @@ class HouseService {
   // Add a user to a room
   Future<bool> addUserToHouse(String houseKey, UserModel user) async {
     try {
-      final querySnapshot = await _db
-          .collection(collection)
-          .where('houseKey', isEqualTo: houseKey)
-          .get();
+      final querySnapshot =
+          await _db
+              .collection(collection)
+              .where('houseKey', isEqualTo: houseKey)
+              .get();
       if (querySnapshot.docs.isNotEmpty) {
-        final roomRef =
-            _db.collection(collection).doc(querySnapshot.docs.first.id);
+        final roomRef = _db
+            .collection(collection)
+            .doc(querySnapshot.docs.first.id);
 
         // Fetch the current house data
         final houseSnapshot = await roomRef.get();
-        final HouseModel house =
-            HouseModel.fromJson(houseSnapshot.data() as Map<String, dynamic>);
+        final HouseModel house = HouseModel.fromJson(
+          houseSnapshot.data() as Map<String, dynamic>,
+        );
 
         // Determine the new order for the user
         final int newOrder = (house.userOrder?.length ?? 0) + 1;
@@ -88,12 +99,30 @@ class HouseService {
         await roomRef.update({
           'users': FieldValue.arrayUnion([user.uid]),
           'userOrder': FieldValue.arrayUnion([
-            {
-              'uid': user.uid,
-              'order': newOrder,
-            }
+            {'uid': user.uid, 'order': newOrder},
           ]),
         });
+
+        // Update houses field to add the new HouseId
+        final userRef = _db.collection(FSCollections.users).doc(user.uid);
+        final userDoc = await userRef.get();
+        List? assHouseIds = userDoc.data()?['houses'] as List<dynamic>?;
+        if (assHouseIds == null || !assHouseIds.contains(roomRef.id)) {
+          await userRef.update({
+            'houses': FieldValue.arrayUnion([roomRef.id]),
+          });
+        }
+
+        // -- add user metadata to the House's usersMeta attribute
+        final fcmToken = await NotificationService().getFcmToken();
+        await roomRef.set({
+          'usersMeta': {
+            user.uid: {
+              'displayName': user.displayName ?? '',
+              'fcmToken': fcmToken,
+            },
+          },
+        }, SetOptions(merge: true));
 
         //check if user already exists in FS
         final existingUser = await UserServices().getUserByUid(user.uid);
@@ -104,31 +133,36 @@ class HouseService {
         return true;
       }
     } catch (e) {
-      dev.log('Error: {HouseService.addUserToHouse}, Failed to add user');
+      clog.error('Error❌: {HouseService.addUserToHouse}, Failed to add user');
+      clog.error('📕 Error: $e');
     }
     return false;
   }
 
   // Get users in a room
-  Future<List<UserModel>> getUsersInRoom(
-      {required WidgetRef ref, String? houseKey}) async {
+  Future<List<UserModel>> getUsersInRoom({
+    required WidgetRef ref,
+    String? houseKey,
+  }) async {
     if (houseKey == null) {
       // get houseKey from current logged in user
       final house = await getHouseByUserId();
       houseKey = house?.houseKey;
     }
-    final querySnapshot = await _db
-        .collection(collection)
-        .where('houseKey', isEqualTo: houseKey)
-        .get();
+    final querySnapshot =
+        await _db
+            .collection(collection)
+            .where('houseKey', isEqualTo: houseKey)
+            .get();
     if (querySnapshot.docs.isNotEmpty) {
       final house = HouseModel.fromJson(querySnapshot.docs.first.data());
       List<UserModel> users = [];
       for (var uid in house.users ?? []) {
-        final userQSS = await _db
-            .collection(FSCollections.users)
-            .where('uid', isEqualTo: uid)
-            .get();
+        final userQSS =
+            await _db
+                .collection(FSCollections.users)
+                .where('uid', isEqualTo: uid)
+                .get();
         if (userQSS.docs.isNotEmpty) {
           final userData = userQSS.docs.first.data();
           users.add(UserModel.fromJson(userData));
@@ -142,10 +176,11 @@ class HouseService {
 
   // Search room by roomId
   Future<HouseModel?> getHouseByHouseKey(String houseKey) async {
-    final querySnapshot = await _db
-        .collection(collection)
-        .where('houseKey', isEqualTo: houseKey.toUpperCase().trim())
-        .get();
+    final querySnapshot =
+        await _db
+            .collection(collection)
+            .where('houseKey', isEqualTo: houseKey.toUpperCase().trim())
+            .get();
     if (querySnapshot.docs.isNotEmpty) {
       return HouseModel.fromJson(querySnapshot.docs.first.data());
     } else {
@@ -156,13 +191,15 @@ class HouseService {
   // search for associated house by current user
   Future<HouseModel?> getHouseByUserId() async {
     final user = FirebaseAuth.instance.currentUser;
-    final querySnapshot = await _db
-        .collection(collection)
-        .where('users', arrayContains: user?.uid)
-        .get();
-    final response = querySnapshot.docs
-        .map((doc) => HouseModel.fromJson(doc.data()))
-        .toList();
+    final querySnapshot =
+        await _db
+            .collection(collection)
+            .where('users', arrayContains: user?.uid)
+            .get();
+    final response =
+        querySnapshot.docs
+            .map((doc) => HouseModel.fromJson(doc.data()))
+            .toList();
     // ref
     //     .read(houseProvider.notifier)
     //     .setInitialState(response.isNotEmpty ? response.last : null);
@@ -170,9 +207,12 @@ class HouseService {
     return null;
   }
 
-  Future<bool> unlinkUserFromHouse({required String houseKey, String? userId}) async {
+  Future<bool> unlinkUserFromHouse({
+    required String houseKey,
+    String? userId,
+  }) async {
     try {
-      if(userId == null) {
+      if (userId == null) {
         // Get the current user's UID
         final user = FirebaseAuth.instance.currentUser;
         if (user == null) {
@@ -189,17 +229,26 @@ class HouseService {
 
       if (houseSnapshot.exists) {
         // Remove the user's UID from the 'users' array
-        await houseRef.update({
-          'users': FieldValue.arrayRemove([userId])
-        });
+        // await houseRef.update({
+        //   'users': FieldValue.arrayRemove([userId]),
+        // });
+        // -- Remove the user's UID from the 'userOrder' array
         // Fetch the current userOrder array
         List<dynamic>? userOrder = houseSnapshot.data()?['userOrder'];
-
         // Filter out the user from the userOrder array
         userOrder?.removeWhere((userMap) => userMap['uid'] == userId);
+        // -- remove user info from usersMeta map
+        // Fetch the current usersMeta map
+        Map<String, dynamic>? usersMeta = houseSnapshot.data()?['usersMeta'];
+        // Filter out the user from the userOrder array
+        usersMeta?.removeWhere((key, value) => key == userId);
 
-        // Update the userOrder array in Firestore
-        await houseRef.update({'userOrder': userOrder});
+        // Update the users array, userOrder array, usersMeta map in Firestore
+        await houseRef.update({
+          'users': FieldValue.arrayRemove([userId]),
+          'userOrder': userOrder,
+          'usersMeta': usersMeta,
+        });
 
         print('User $userId successfully unlinked from house $houseKey.');
         return true;
@@ -213,7 +262,10 @@ class HouseService {
   }
 
   Future<HouseModel?> reorderUsers(
-      HouseModel? house, int oldIndex, int newIndex) async {
+    HouseModel? house,
+    int oldIndex,
+    int newIndex,
+  ) async {
     try {
       if (house == null ||
           house.userOrder == null ||
@@ -256,7 +308,10 @@ class HouseService {
   }
 
   Future<bool> updateHouseDetails(
-      HouseModel? house, String displayName, String address) async {
+    HouseModel? house,
+    String displayName,
+    String address,
+  ) async {
     try {
       if (house == null) return false;
       // Reference to the house document
@@ -265,16 +320,14 @@ class HouseService {
       final houseSnapshot = await houseRef.get();
       if (houseSnapshot.exists) {
         // Remove the user's UID from the 'users' array
-        await houseRef.update({
-          'displayName': displayName,
-          'address': address,
-        });
+        await houseRef.update({'displayName': displayName, 'address': address});
 
         return true;
       }
     } catch (e) {
       print(
-          '{HouseService.updateHouseDetails} Failed to update user details: $e');
+        '{HouseService.updateHouseDetails} Failed to update user details: $e',
+      );
     }
     return false;
   }

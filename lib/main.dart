@@ -19,11 +19,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
-    if (message.notification != null) {
-      NotificationService().showLocalNotification(message);
-    }
-  });  runApp(ProviderScope(child: MyApp()));
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -35,6 +31,11 @@ class MyApp extends ConsumerStatefulWidget {
 
 class _MyAppState extends ConsumerState<MyApp> {
   Future<void> _initializeNotifications() async {
+    FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
+      if (message.notification != null) {
+        NotificationService().showLocalNotification(message);
+      }
+    });
     await _notificationService.initialize(context, ref);
   }
 

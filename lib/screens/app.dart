@@ -9,6 +9,7 @@ import 'package:flatypus/screens/profile/profile/methods/profile_methods.dart';
 import 'package:flatypus/screens/profile/profile/profile_screen.dart';
 import 'package:flatypus/screens/task/add_task/add_task_screen.dart';
 import 'package:flatypus/screens/task/tasks/tasks_screen.dart';
+import 'package:flatypus/services/cloud_messaging/firebase_function_service.dart';
 import 'package:flatypus/state/controllers/floating_add_button_controller.dart';
 import 'package:flatypus/state/controllers/selected_page_controller.dart';
 import 'package:flatypus/theme/app_colors.dart';

@@ -56,6 +56,7 @@ class ChatRoomService {
           'senderId': userId,
           'timestamp': FieldValue.serverTimestamp(),
           'iv': iv, // Store IV with message
+          'expireOn': Timestamp.fromDate(DateTime.now().add(Duration(days: 5))),
         });
   }
 

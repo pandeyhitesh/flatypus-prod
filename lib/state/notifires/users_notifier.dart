@@ -34,7 +34,7 @@ class UsersNotifier extends StateNotifier<List<UserModel>> {
 
   Future<UserModel?> getUserFromFireStore(String uid) async {
     final usr = await UserServices().getUserByUid(uid);
-    clog.info('User DOB = ${usr?.dob}');
+    clog.info('User DOB = ${usr?.dobMonthDate}');
     return usr;
   }
 
@@ -66,7 +66,7 @@ class UsersNotifier extends StateNotifier<List<UserModel>> {
   }) async {
     // final result = await UserServices()
     //     .updateUserPhoneNumber(phoneNumber: phoneNumber, userId: userId);
-    final userInfo = {"dateOfBirth": dateOfBirth?.toIso8601String()};
+    final userInfo = {"dobMonthDate": UserModel.dateToDobMDString(dateOfBirth)};
     final result = await UserServices().updateUserInformation(
       userInfo: userInfo,
       userId: userId,
@@ -76,7 +76,7 @@ class UsersNotifier extends StateNotifier<List<UserModel>> {
     final index = tempList.indexWhere((u) => u.uid == userId);
     if (index != -1) {
       final user = tempList[index];
-      final updatedUser = user.copyWith(dob: dateOfBirth);
+      final updatedUser = user.copyWith(dobMonthDate: dateOfBirth);
       tempList.removeAt(index);
       tempList.insert(index, updatedUser);
     }

@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/services/auth_service.dart';
-import 'package:flatypus/services/cloud_messaging/firebase_notification_service.dart';
 import 'package:flatypus/state/controllers/loading_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

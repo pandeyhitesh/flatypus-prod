@@ -58,6 +58,7 @@ DateFormat messageDateFormat = DateFormat('dd MMMM yyyy');
 DateFormat taskCardDateFormat = DateFormat('EEE, dd MMM');
 DateFormat monthFormat = DateFormat('MMMM yyyy');
 DateFormat chatTimeStampFormat = DateFormat('hh:mm a');
+DateFormat dobMonthDateFormat = DateFormat('MMMM dd');
 
 extension StringExtension on String {
   String capitalize() => '${this[0].toUpperCase()}${substring(1)}';

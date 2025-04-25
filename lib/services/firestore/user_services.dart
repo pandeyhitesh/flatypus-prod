@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:color_log/color_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/common/snackbar.dart';
 import 'package:flatypus/models/user_model.dart';
@@ -17,11 +18,11 @@ class UserServices {
             .collection(collection)
             .where("uid", isEqualTo: user.uid)
             .get();
-    print('User Snapshot = ${userFromDb.docs}');
+    clog.checkSuccess(true, 'User Snapshot = ${userFromDb.docs}');
     if (userFromDb.docs.isNotEmpty) return;
     final newUser = UserModel.fromFirebaseUser(user);
     await _db.collection(collection).doc().set(newUser.toJson());
-    print("new user added to DB, $newUser");
+    clog.checkSuccess(true, "new user added to DB, $newUser");
   }
 
   Future<UserModel?> getUserByUid(String uid) async {

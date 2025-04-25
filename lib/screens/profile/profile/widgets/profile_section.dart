@@ -1,3 +1,4 @@
+import 'package:color_log/color_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/common/enums.dart';
 import 'package:flatypus/common/methods.dart';
@@ -20,7 +21,7 @@ class ProfileSection extends ConsumerStatefulWidget {
 
 class _ProfileSectionState extends ConsumerState<ProfileSection> {
   String? phoneNumber;
-  DateTime? dateOfBirth;
+  DateTime? dobMonthDate;
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _ProfileSectionState extends ConsumerState<ProfileSection> {
         ref.read(usersProvider.notifier).setUsers([user]);
         setState(() {
           phoneNumber = user.phoneNumber;
-          dateOfBirth = user.dob;
+          dobMonthDate = user.dobMonthDate;
         });
       }
     } else {
@@ -52,7 +53,7 @@ class _ProfileSectionState extends ConsumerState<ProfileSection> {
       if (user != null) {
         setState(() {
           phoneNumber = user.phoneNumber;
-          dateOfBirth = user.dob;
+          dobMonthDate = user.dobMonthDate;
         });
       }
     }
@@ -67,15 +68,16 @@ class _ProfileSectionState extends ConsumerState<ProfileSection> {
       final currentUser = ref
           .read(usersProvider.notifier)
           .getUserByUid(user.uid);
+      clog.info('Current User = $currentUser');
       if (currentUser == null) return;
       if (currentUser.phoneNumber != phoneNumber) {
         setState(() {
           phoneNumber = currentUser.phoneNumber;
         });
       }
-      if (currentUser.dob != dateOfBirth) {
+      if (currentUser.dobMonthDate != dobMonthDate) {
         setState(() {
-          dateOfBirth = currentUser.dob;
+          dobMonthDate = currentUser.dobMonthDate;
         });
       }
     });
@@ -107,7 +109,7 @@ class _ProfileSectionState extends ConsumerState<ProfileSection> {
             ),
           ),
           PhoneNumberSection(phoneNumber: phoneNumber),
-          BirthDateSection(dateOfBirth: dateOfBirth),
+          BirthDateSection(dobMonthDate: dobMonthDate),
         ],
       ),
     );

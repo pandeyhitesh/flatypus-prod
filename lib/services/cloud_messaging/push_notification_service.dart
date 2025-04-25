@@ -4,7 +4,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flatypus/screens/app.dart' show AppScreens;
 import 'package:flatypus/services/firestore/chatroom_service.dart';
+import 'package:flatypus/services/firestore/collentions.dart';
 import 'package:flatypus/state/controllers/selected_page_controller.dart';
+import 'package:flatypus/state/providers/house_provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -18,6 +20,10 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   NotificationService();
+
+  Future<String?> getFcmToken() async {
+    return await _messaging.getToken();
+  }
 
   Future<void> initialize(BuildContext context, WidgetRef ref) async {
     await _messaging.requestPermission();
@@ -37,10 +43,12 @@ class NotificationService {
 
     String? token = await _messaging.getToken();
     if (token != null) {
-      await _saveTokenToFirestore(token);
+      await _saveTokenToFirestore(token, ref);
     }
 
-    _messaging.onTokenRefresh.listen(_saveTokenToFirestore);
+    _messaging.onTokenRefresh.listen(
+      (token) => _saveTokenToFirestore(token, ref),
+    );
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       clog.checkSuccess(
         true,
@@ -76,14 +84,34 @@ class NotificationService {
     }
   }
 
-  Future<void> _saveTokenToFirestore(String token) async {
-    String userId =
-        FirebaseAuth.instance.currentUser?.uid ??
-        ""; // Replace with FirebaseAuth.instance.currentUser?.uid
-    await _firestore.collection('users').doc(userId).update({
-      'fcmToken': token,
-    });
-
+  Future<void> _saveTokenToFirestore(String token, WidgetRef ref) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return;
+      final userId = currentUser.uid;
+      final userName = currentUser.displayName;
+      await _firestore.collection(FSCollections.users).doc(userId).update({
+        'fcmToken': token,
+      });
+      final houseId = ref
+          .read(houseProvider.notifier)
+          .id;
+      if (houseId == null) return;
+      final houseRef = _firestore.collection(FSCollections.houses).doc(houseId);
+      await houseRef.set(
+        {
+          'usersMeta': {
+            userId: {
+              'displayName': userName ?? '',
+              'fcmToken': token,
+            },
+          },
+        },
+        SetOptions(merge: true),
+      );
+    }catch(e){
+      clog.error('Error updating usersMeta: $e');
+    }
     // Update token in all houses where this user is a tenant
     // final houseSnapshots = await _firestore
     //     .collection('houses')
