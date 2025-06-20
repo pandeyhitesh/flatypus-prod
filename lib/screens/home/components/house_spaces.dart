@@ -3,6 +3,7 @@ import 'package:flatypus/common/widgets/component_header.dart';
 import 'package:flatypus/common/widgets/custom_grid_view.dart';
 import 'package:flatypus/constants/demo_data.dart';
 import 'package:flatypus/models/space_model.dart';
+import 'package:flatypus/screens/home/widgets/home_screen_section_header.dart';
 import 'package:flatypus/screens/home/widgets/space_card.dart';
 import 'package:flatypus/screens/home/widgets/space_suggestion_card.dart';
 import 'package:flatypus/screens/house/methods/house_methods.dart';
@@ -66,7 +67,7 @@ class _HouseSpacesSectionState extends ConsumerState<HouseSpacesSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          _showSectionHeader(),
+          HomeScreenSectionHeader(destinationScreen: AddSpaceScreen(), title: 'Available Spaces', buttonText: 'Add Space'),
           const SizedBox(height: 16),
           SizedBox(
             // height: 90,
@@ -84,40 +85,4 @@ class _HouseSpacesSectionState extends ConsumerState<HouseSpacesSection> {
       ),
     );
   }
-
-  Widget _showSectionHeader() => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          componentHeader('Available Spaces'),
-          Container(
-            height: 30,
-            padding: const EdgeInsets.symmetric(vertical: 1.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  backgroundColor: AppColors.yellowAccent2,
-                  surfaceTintColor: kTransparent,
-                  padding: const EdgeInsets.symmetric(horizontal: 12)),
-              onPressed: () {
-                // check if house is added
-                final isHouseAvailable =
-                    HouseMethods.isHouseAvailable(ref: ref);
-                if (!isHouseAvailable) return;
-                // if house available, navigate to Add space screen
-                push(context, AddSpaceScreen());
-              },
-              child: const Text(
-                'Add Space',
-                style: TextStyle(
-                  color: AppColors.backgroundColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,
-                  letterSpacing: .5,
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
 }

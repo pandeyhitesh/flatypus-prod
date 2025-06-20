@@ -1,3 +1,4 @@
+import 'package:flatypus/common/widgets/base_layout.dart';
 import 'package:flatypus/common/widgets/bottom_navigation/custom_bottom_navigation_bar.dart';
 import 'package:flatypus/common/widgets/small_icon_button.dart';
 import 'package:flatypus/common/widgets/text_with_icon_header.dart';
@@ -26,8 +27,9 @@ class ManageHouseScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final house = ref.watch(houseProvider);
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
+    return BaseLayout(
+      showAppBar: true,
+      showBottomNavigationBar: true,
       appBar: _appBar,
       bottomNavigationBar: const CustomBottomNavigationBar(),
       body: SizedBox(
@@ -43,7 +45,11 @@ class ManageHouseScreen extends ConsumerWidget {
               children: [
                 const SizedBox(height: kScreenPadding),
                 _manageButtonSection(ref: ref, context: context, house: house),
-                ..._houseDetailsSection(house: house, ref: ref),
+                ..._houseDetailsSection(
+                  context: context,
+                  house: house,
+                  ref: ref,
+                ),
                 const ReorderResidents(),
                 const SizedBox(height: 50),
               ],
@@ -54,7 +60,11 @@ class ManageHouseScreen extends ConsumerWidget {
     );
   }
 
-  _houseDetailsSection({HouseModel? house, required WidgetRef ref}) => [
+  _houseDetailsSection({
+    required BuildContext context,
+    HouseModel? house,
+    required WidgetRef ref,
+  }) => [
     const SizedBox(height: 24),
     displayHouseNameText(label: house?.displayName, color: AppColors.white),
     const SizedBox(height: 5),
@@ -87,6 +97,11 @@ class ManageHouseScreen extends ConsumerWidget {
                   tooltip: 'Copy to clipboard',
                   icon: FontAwesomeIcons.solidCopy,
                   onTap: () => HouseMethods.copyHouseKey(ref),
+                ),
+                SmallIconButton(
+                  tooltip: 'Generate QR Code',
+                  icon: FontAwesomeIcons.qrcode,
+                  onTap: () => HouseMethods.generateQRCode(context, ref),
                 ),
                 SmallIconButton(
                   tooltip: 'Sent to WhatsApp',

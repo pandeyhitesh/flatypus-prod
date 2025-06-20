@@ -7,6 +7,7 @@ from common.collections import Collections
 from modules.common_methods.send_notifications_to_flatmates import send_bd_notifications_to_flatmates
 
 
+
 @scheduler_fn.on_schedule(
     schedule="every day 00:00"
 )

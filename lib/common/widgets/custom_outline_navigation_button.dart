@@ -54,6 +54,7 @@ class CustomOutlineNavigationButton extends StatelessWidget {
               fontSize: 12,
               color: foregroundColor,
               letterSpacing: .5,
+              fontWeight: FontWeight.w700
             ),
           ),
           const SizedBox(

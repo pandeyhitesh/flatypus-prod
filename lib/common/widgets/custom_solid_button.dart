@@ -21,7 +21,7 @@ class CustomSolidButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.secondaryColor,
+          backgroundColor: backgroundColor ?? AppColors.secondaryColor,
           padding: EdgeInsets.symmetric(
               vertical: vPadding ?? 12, horizontal: hPadding ?? 0)),
       onPressed: () => onTap?.call(),

@@ -8,3 +8,6 @@ enum TaskSchedule{
   doNotRepeat, daily, customWeek, alternateDays, monthly,
 }
 
+enum ExpenseTransactionType{
+  toPay, toGet
+}

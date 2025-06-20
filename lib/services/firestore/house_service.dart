@@ -17,8 +17,8 @@ class HouseService {
   final collection = FSCollections.houses;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Generate a unique roomId in the format "xxx-xxx-xxxx"
-  String generateRoomId() {
+  // Generate a unique houseKey in the format "xxx-xxx-xxxx"
+  String _generateHouseKey() {
     const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     String getRandomString(int length) => String.fromCharCodes(
       Iterable.generate(
@@ -34,14 +34,14 @@ class HouseService {
     required String displayName,
     required String address,
   }) async {
-    String roomId = generateRoomId();
+    String houseKey = _generateHouseKey();
     HouseModel? existingRoom;
 
     do {
       final querySnapshot =
           await _db
               .collection(collection)
-              .where('houseKey', isEqualTo: roomId)
+              .where('houseKey', isEqualTo: houseKey)
               .get();
       if (querySnapshot.docs.isNotEmpty) {
         existingRoom = HouseModel.fromJson(querySnapshot.docs.first.data());
@@ -56,7 +56,7 @@ class HouseService {
     final newRoom = HouseModel(
       id: newRoomRef.id,
       displayName: displayName,
-      houseKey: roomId,
+      houseKey: houseKey,
       address: address,
       userOrder: [UserOrder(uid: currentUserId, order: 1)],
       users: [currentUserId],
@@ -174,16 +174,24 @@ class HouseService {
     }
   }
 
-  // Search room by roomId
+  // Search house by houseKey
   Future<HouseModel?> getHouseByHouseKey(String houseKey) async {
-    final querySnapshot =
-        await _db
-            .collection(collection)
-            .where('houseKey', isEqualTo: houseKey.toUpperCase().trim())
-            .get();
-    if (querySnapshot.docs.isNotEmpty) {
-      return HouseModel.fromJson(querySnapshot.docs.first.data());
-    } else {
+    try {
+      final querySnapshot =
+          await _db
+              .collection(collection)
+              .where('houseKey', isEqualTo: houseKey.toUpperCase().trim())
+              .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        return HouseModel.fromJson(querySnapshot.docs.first.data());
+      } else {
+        return null;
+      }
+    } catch (e) {
+      clog.error(
+        'Error❌: {HouseService.getHouseByHouseKey}, Failed to get house',
+      );
+      clog.error('📕 Error: $e');
       return null;
     }
   }

@@ -1,7 +1,9 @@
 import 'package:color_log/color_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/common/methods.dart';
+import 'package:flatypus/common/methods/loading_methods.dart';
 import 'package:flatypus/common/methods/show_confirmation_dialog.dart';
+import 'package:flatypus/common/methods/show_custom_dialog.dart';
 import 'package:flatypus/common/snackbar.dart';
 import 'package:flatypus/models/house_model.dart';
 import 'package:flatypus/models/user_model.dart';
@@ -9,6 +11,7 @@ import 'package:flatypus/screens/app.dart';
 import 'package:flatypus/screens/home/home_screen.dart';
 import 'package:flatypus/screens/house/methods/add_house_confirmation_dialog.dart';
 import 'package:flatypus/screens/house/search_house.dart';
+import 'package:flatypus/screens/house/widgets/scan_qr_for_house_key.dart';
 import 'package:flatypus/services/cloud_messaging/firebase_function_service.dart';
 import 'package:flatypus/services/firestore/house_service.dart';
 import 'package:flatypus/services/global_context.dart';
@@ -25,6 +28,7 @@ import 'package:flatypus/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HouseMethods {
@@ -36,12 +40,12 @@ class HouseMethods {
     required String houseName,
     required String houseAddress,
   }) async {
-    ref.read(loadingControllerProvider.notifier).state = true;
+    Loader.startLoading(context, ref);
     final response = await HouseService().createOrGetHouse(
       displayName: houseName,
       address: houseAddress,
     );
-    ref.read(loadingControllerProvider.notifier).state = false;
+    Loader.stopLoading(context, ref);
     print('Add house response = $response');
     if (response != null) {
       // show success snackbar
@@ -80,23 +84,29 @@ class HouseMethods {
     required String houseKey,
     required WidgetRef ref,
   }) async {
-    ref.read(loadingControllerProvider.notifier).state = true;
-    final response = await HouseService().getHouseByHouseKey(houseKey);
-    print('House response = $response');
-    ref.read(loadingControllerProvider.notifier).state = false;
-    if (response != null && context.mounted) {
-      final isHouseAdded = await showAddHouseConfirmationDialog(
-        context: context,
-        house: response,
-      );
-      if (isHouseAdded) {
-        ref.read(selectedPageProvider.notifier).state = AppScreens.home.index;
-        pushAndRemoveAll(const App());
+    try {
+      Loader.startLoading(context, ref);
+      final response = await HouseService().getHouseByHouseKey(houseKey);
+      Loader.stopLoading(context, ref);
+      if (response != null && context.mounted) {
+        final isHouseAdded = await showAddHouseConfirmationDialog(
+          pContext: context,
+          house: response,
+          ref: ref,
+        );
+        if (isHouseAdded == true) {
+          ref.read(selectedPageProvider.notifier).state = AppScreens.home.index;
+          pushAndRemoveAll(const App());
+        }
+        // show success snack bar
+        // showSuccessSnackbar(context: context, label: 'label')
+      } else {
+        showErrorSnackbar(label: 'No house found with this key');
       }
-      // show success snack bar
-      // showSuccessSnackbar(context: context, label: 'label')
-    } else {
-      showErrorSnackbar(label: 'No house found with this key');
+    } catch (e) {
+      clog.error('Error: HouseMethods.searchHouseByHouseKey - e: $e');
+    } finally {
+      Loader.stopLoading(context, ref);
     }
   }
 
@@ -106,47 +116,55 @@ class HouseMethods {
     required WidgetRef ref,
   }) async {
     if (house.houseKey == null) return;
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) return;
-    final user = UserModel.fromFirebaseUser(currentUser);
+    try {
+      Loader.startLoading(context, ref);
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return;
+      final user = UserModel.fromFirebaseUser(currentUser);
 
-    final isHouseAdded = await HouseService().addUserToHouse(
-      house.houseKey!,
-      user,
-    );
-    if (isHouseAdded) {
-      ref.read(houseProvider.notifier).setInitialState(house);
-      clog.warning('\nHouse info 1 : ${ref.read(houseProvider)}\n');
-      ref.invalidate(tasksProvider);
-      ref.invalidate(usersProvider);
-      ref.invalidate(spacesProvider);
-      ref.invalidate(houseProvider);
-      clog.warning('\nHouse info 2 : ${ref.read(houseProvider)}\n');
-
-      showSuccessSnackbar(label: 'House added successfully!');
-      // -- send notifications to flatmates and new user
-      FirebaseFunctionService().callNewUserAddedNotification(
-        ref: ref,
-        houseId: house.id,
-        userId: user.uid,
+      final isHouseAdded = await HouseService().addUserToHouse(
+        house.houseKey!,
+        user,
       );
-      // return;
-    } else {
-      showErrorSnackbar(label: 'Failed to add house! Please try again');
+      if (isHouseAdded) {
+        ref.read(houseProvider.notifier).setInitialState(house);
+        ref.invalidate(tasksProvider);
+        ref.invalidate(usersProvider);
+        ref.invalidate(spacesProvider);
+        ref.invalidate(houseProvider);
+
+        showSuccessSnackbar(label: 'House added successfully!');
+        // -- send notifications to flatmates and new user
+        FirebaseFunctionService().callNewUserAddedNotification(
+          ref: ref,
+          houseId: house.id,
+          userId: user.uid,
+        );
+        // return;
+      } else {
+        showErrorSnackbar(label: 'Failed to add house! Please try again');
+      }
+
+      Loader.stopLoading(context, ref);
+      pop(parameter: isHouseAdded);
+    } catch (e) {
+      clog.error('Error: HouseMethods.addUserToHouse - e: $e');
+    } finally {
+      Loader.stopLoading(context, ref);
     }
-    pop(parameter: isHouseAdded);
   }
 
   // static Future<void> deleteHouseMethodOnTap(WidgetRef ref) async {}
 
   static Future<void> removeUserFromHouse({
+    required BuildContext context,
     required WidgetRef ref,
     String? userId,
   }) async {
     bool currentUser = false;
 
     try {
-      ref.read(loadingControllerProvider.notifier).state = true;
+      Loader.startLoading(context, ref);
       if (userId == null) {
         final selectedUser = ref.read(manageResidentsSelectionProvider);
         userId = selectedUser?.uid;
@@ -196,7 +214,7 @@ class HouseMethods {
     } catch (e) {
       showErrorSnackbar(label: 'Failed to unlink house! Please try again');
     } finally {
-      ref.read(loadingControllerProvider.notifier).state = false;
+      Loader.stopLoading(context, ref);
     }
   }
 
@@ -245,6 +263,64 @@ class HouseMethods {
       showSuccessSnackbar(label: 'House Key copied to clipboard!');
     } catch (e) {
       showErrorSnackbar(label: 'Failed to copy the House key!');
+    }
+  }
+
+  static void generateQRCode(BuildContext context, WidgetRef ref) async {
+    try {
+      final house = ref.read(houseProvider);
+      final houseKey = house?.houseKey;
+      final houseName = house?.displayName;
+      if (houseKey == null) throw Exception();
+      await showCustomDialog<bool>(
+        parentContext: context,
+        headerText: 'Scan the QR Code to join ${houseName ?? 'the house'}',
+        cancellationActionLabel: 'Close',
+        body: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24.0),
+          child: SizedBox(
+            height: 200,
+            width: 200,
+            child: QrImageView(
+              data: houseKey,
+              version: QrVersions.auto,
+              size: 200.0,
+              eyeStyle: QrEyeStyle(
+                color: AppColors.white,
+                eyeShape: QrEyeShape.square,
+              ),
+              dataModuleStyle: QrDataModuleStyle(
+                color: AppColors.white,
+                dataModuleShape: QrDataModuleShape.circle,
+              ),
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      clog.error('Failed to Generate the QR Code for House key!. e: $e');
+      showErrorSnackbar(label: 'Failed to Generate the QR Code for House key!');
+    }
+  }
+
+  static void scanQRCodeForHouseKey(BuildContext context, WidgetRef ref) async {
+    try {
+      final dynamic houseKey = await showCustomDialog<dynamic>(
+        parentContext: context,
+        headerText: 'Scan QR Code to join the house',
+        body: ScanQrForHouseKey(),
+      );
+      if (houseKey == null) return;
+      if (houseKey is! String) return;
+      if (context.mounted) {
+        searchHouseByHouseKey(context: context, houseKey: houseKey, ref: ref);
+      }
+    } catch (e) {
+      clog.error('Failed to Scan the QR Code for House key!. e: $e');
+      showErrorSnackbar(
+        label:
+            'Failed to Scan the QR Code for House key!. Enter the house key manually.',
+      );
     }
   }
 }

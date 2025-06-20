@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/services/auth_service.dart';
 import 'package:flatypus/state/controllers/loading_controller.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AuthStatus { loggedIn, loggedOut }
@@ -34,18 +35,18 @@ class AuthNotifier extends StateNotifier<AuthStatus> {
     }
   }
 
-  Future<void> login() async {
-    _ref.read(loadingControllerProvider.notifier).state = true;
+  Future<void> login(BuildContext context) async {
+    _ref.read(loadingControllerProvider.notifier).startLoading();
     final userCred = await _authService.signInWithGoogle();
     // await FirebaseNotificationService().updateUserFCMToken(userCred.user?.uid);
-    _ref.read(loadingControllerProvider.notifier).state = false;
+    _ref.read(loadingControllerProvider.notifier).stopLoading();
     // state = AuthStatus.loggedIn;
   }
 
-  Future<void> logout() async {
-    _ref.read(loadingControllerProvider.notifier).state = true;
+  Future<void> logout(BuildContext context) async {
+    _ref.read(loadingControllerProvider.notifier).startLoading();
     await _authService.logOut();
-    _ref.read(loadingControllerProvider.notifier).state = false;
+    _ref.read(loadingControllerProvider.notifier).stopLoading();
     // state = AuthStatus.loggedOut;
   }
 }

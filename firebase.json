@@ -29,6 +29,14 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         "*.local"
+      ],
+      "functions": [
+        {
+          "name": "new_user_added_to_house",
+          "timeout": "60s",
+          "memory": "256MB",
+          "maxInstances": 10
+        }
       ]
     }
   ],

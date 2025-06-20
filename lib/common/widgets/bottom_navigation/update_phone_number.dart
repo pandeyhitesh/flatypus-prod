@@ -59,9 +59,10 @@ class _UpdatePhoneNumberState extends State<UpdatePhoneNumber> {
               keyBoardType: TextInputType.number,
               inputFormatters: [
                 PhoneInputFormatter(
-                    defaultCountryCode: 'IN',
-                    allowEndlessPhone: false,
-                    shouldCorrectNumber: false)
+                  defaultCountryCode: 'IN',
+                  allowEndlessPhone: false,
+                  shouldCorrectNumber: false,
+                ),
               ],
             ),
           ),
@@ -70,33 +71,41 @@ class _UpdatePhoneNumberState extends State<UpdatePhoneNumber> {
         SizedBox(
           width: kScreenWidth,
           child: Consumer(
-            builder: (context, ref, _) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: CustomSolidButton(
-                label: 'Save',
-                onTap: () async {
-                  try {
-                    ref.read(loadingControllerProvider.notifier).state = true;
-                    if (!(_formKey.currentState?.validate() ?? false)) return;
-                    final result = await ref
-                        .read(usersProvider.notifier)
-                        .updatePhoneNumber(
-                            userId: widget.userId,
-                            phoneNumber: _phoneNumberController.text);
-                    if (result) {
-                      showSuccessSnackbar(
-                          label: 'Phone number updated successfully!');
-                    }
-                    pop();
-                  } catch (e) {
-                    showErrorSnackbar(label: e.toString());
-                  } finally {
-                    ref.read(loadingControllerProvider.notifier).state = false;
-                  }
-                },
-                vPadding: 8,
-              ),
-            ),
+            builder:
+                (context, ref, _) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: CustomSolidButton(
+                    label: 'Save',
+                    onTap: () async {
+                      try {
+                        ref
+                            .read(loadingControllerProvider.notifier)
+                            .startLoading();
+                        if (!(_formKey.currentState?.validate() ?? false))
+                          return;
+                        final result = await ref
+                            .read(usersProvider.notifier)
+                            .updatePhoneNumber(
+                              userId: widget.userId,
+                              phoneNumber: _phoneNumberController.text,
+                            );
+                        if (result) {
+                          showSuccessSnackbar(
+                            label: 'Phone number updated successfully!',
+                          );
+                        }
+                        pop();
+                      } catch (e) {
+                        showErrorSnackbar(label: e.toString());
+                      } finally {
+                        ref
+                            .read(loadingControllerProvider.notifier)
+                            .stopLoading();
+                      }
+                    },
+                    vPadding: 8,
+                  ),
+                ),
           ),
         ),
         const SizedBox(height: 30),

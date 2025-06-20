@@ -1,4 +1,6 @@
+import 'package:flatypus/common/methods/loading_methods.dart';
 import 'package:flatypus/common/snackbar.dart';
+import 'package:flatypus/common/widgets/base_layout.dart';
 import 'package:flatypus/common/widgets/input_field_header.dart';
 import 'package:flatypus/common/widgets/loading_overlay_screen.dart';
 import 'package:flatypus/models/house_model.dart';
@@ -45,54 +47,47 @@ class _AddAHouseScreenState extends ConsumerState<AddAHouseScreen> {
   }
 
   get _appBar => AppBar(
-        backgroundColor: kBackgroundColor,
-        title: Text(
-          _isUpdate
-              ? AddAHouseScreen.updateScreenTitle
-              : AddAHouseScreen.screenTitle,
-          style: const TextStyle(color: AppColors.white),
-        ),
-        centerTitle: true,
-      );
+    backgroundColor: kBackgroundColor,
+    title: Text(
+      _isUpdate
+          ? AddAHouseScreen.updateScreenTitle
+          : AddAHouseScreen.screenTitle,
+      style: const TextStyle(color: AppColors.white),
+    ),
+    centerTitle: true,
+  );
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(loadingControllerProvider);
-    return Scaffold(
+    return BaseLayout(
       backgroundColor: kBackgroundColor,
       resizeToAvoidBottomInset: false,
+      showAppBar: true,
       appBar: _appBar,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: kHorizontalScrPadding,
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 32),
-                    inputFieldHeader('House Name'),
-                    houseNameInput(),
-                    const SizedBox(height: 24),
-                    inputFieldHeader('Address'),
+      body: Padding(
+        padding: kHorizontalScrPadding,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 32),
+              inputFieldHeader('House Name'),
+              houseNameInput(),
+              const SizedBox(height: 24),
+              inputFieldHeader('Address'),
 
-                    houseAddressInput(),
-                    // const SizedBox(
-                    //   height: 30,
-                    // ),
-                    const Expanded(child: SizedBox()),
-                    addNewHouseButton(context, ref),
-                    if (!_isUpdate) searchHouseOptionButton(context),
-                    const SizedBox(height: 100)
-                  ],
-                ),
-              ),
-            ),
-            if (isLoading) showLoadingOverlay(),
-          ],
+              houseAddressInput(),
+              // const SizedBox(
+              //   height: 30,
+              // ),
+              const Expanded(child: SizedBox()),
+              addNewHouseButton(context, ref),
+              if (!_isUpdate) searchHouseOptionButton(context),
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
     );
@@ -147,17 +142,20 @@ class _AddAHouseScreenState extends ConsumerState<AddAHouseScreen> {
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.secondaryColor,
-            padding: const EdgeInsets.symmetric(vertical: 12)),
-        onPressed: _isUpdate
-            ? () => _saveUpdatedDetails(ref: ref)
-            : () => _onAddNewHouseButtonTap(context, ref),
+          backgroundColor: AppColors.secondaryColor,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+        onPressed:
+            _isUpdate
+                ? () => _saveUpdatedDetails(ref: ref)
+                : () => _onAddNewHouseButtonTap(context, ref),
         child: Text(
           _isUpdate ? 'Save' : 'Add New House',
           style: const TextStyle(
-              color: AppColors.backgroundColor,
-              fontSize: 16,
-              letterSpacing: .5),
+            color: AppColors.backgroundColor,
+            fontSize: 16,
+            letterSpacing: .5,
+          ),
         ),
       ),
     );
@@ -181,11 +179,11 @@ class _AddAHouseScreenState extends ConsumerState<AddAHouseScreen> {
     );
   }
 
-  void _saveUpdatedDetails({
-    required WidgetRef ref,
-  }) async {
-    ref.read(loadingControllerProvider.notifier).state = true;
-    final updateResult = await ref.read(houseProvider.notifier).updateDetails(
+  void _saveUpdatedDetails({required WidgetRef ref}) async {
+    Loader.startLoading(context, ref);
+    final updateResult = await ref
+        .read(houseProvider.notifier)
+        .updateDetails(
           displayName: _nameController.text,
           address: _addressController.text,
         );
@@ -194,8 +192,8 @@ class _AddAHouseScreenState extends ConsumerState<AddAHouseScreen> {
     } else {
       showErrorSnackbar(label: 'Failed to update house details!');
     }
-    ref.read(loadingControllerProvider.notifier).state = false;
+    Loader.stopLoading(context, ref);
     ref.invalidate(houseProvider);
-    if(kGlobalContext.mounted) pop();
+    if (kGlobalContext.mounted) pop();
   }
 }

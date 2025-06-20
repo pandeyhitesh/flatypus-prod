@@ -15,14 +15,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ProfileMethods {
   ProfileMethods._();
 
-  static Future<void> onLogoutButtonTap(WidgetRef ref) async {
+  static Future<void> onLogoutButtonTap(BuildContext context, WidgetRef ref) async {
     try {
       final confirmation = await showCustomConfirmationDialog(
         header: 'Logout!',
         noteText: 'Do you want to logout for sure?',
       );
       if (confirmation ?? false) {
-        await ref.read(authProvider.notifier).logout();
+        await ref.read(authProvider.notifier).logout(context);
         pushAndRemoveAll(const AuthScreen());
         showSuccessSnackbar(label: 'Logout successful!');
       }

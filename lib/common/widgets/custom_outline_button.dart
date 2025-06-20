@@ -2,14 +2,15 @@ import 'package:flatypus/common/methods.dart';
 import 'package:flutter/material.dart';
 
 class CustomOutlineButton extends StatelessWidget {
-  const CustomOutlineButton(
-      {super.key,
-      required this.label,
-      this.iconData,
-      this.navigateTo,
-      this.foregroundColor = kBackgroundColor,
-      this.function,
-      this.verticalPadding});
+  const CustomOutlineButton({
+    super.key,
+    required this.label,
+    this.iconData,
+    this.navigateTo,
+    this.foregroundColor = kBackgroundColor,
+    this.function,
+    this.verticalPadding,
+  });
   final String label;
   final IconData? iconData;
   final Widget? navigateTo;
@@ -29,13 +30,12 @@ class CustomOutlineButton extends StatelessWidget {
         visualDensity: VisualDensity.compact,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
-          side: BorderSide(
-            color: foregroundColor,
-            width: 1.5,
-          ),
+          side: BorderSide(color: foregroundColor, width: 1.5),
         ),
         padding: EdgeInsets.symmetric(
-            horizontal: 12, vertical: verticalPadding ?? 0),
+          horizontal: 12,
+          vertical: verticalPadding ?? 0,
+        ),
       ),
       onPressed: () {
         if (function != null) {
@@ -52,18 +52,15 @@ class CustomOutlineButton extends StatelessWidget {
           if (iconData != null)
             Padding(
               padding: const EdgeInsets.only(right: 6),
-              child: Icon(
-                iconData,
-                size: 14,
-                color: foregroundColor,
-              ),
+              child: Icon(iconData, size: 14, color: foregroundColor),
             ),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               color: foregroundColor,
               letterSpacing: .5,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

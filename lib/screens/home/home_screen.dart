@@ -2,6 +2,7 @@ import 'package:flatypus/common/methods.dart';
 import 'package:flatypus/screens/home/components/assigned_tasks.dart';
 import 'package:flatypus/screens/home/components/associated_house.dart';
 import 'package:flatypus/screens/home/components/house_spaces.dart';
+import 'package:flatypus/screens/home/components/splits_section.dart';
 import 'package:flatypus/screens/home/widgets/app_name_logo.dart';
 import 'package:flatypus/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +72,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SizedBox(height: 48),
             AssociatedHouse(),
             AssignedTasks(title: 'Tasks for the Day', taskForDay: true),
+            SplitsSection(),
             HouseSpacesSection(),
             AssignedTasks(title: 'Backlog Tasks'),
             SizedBox(

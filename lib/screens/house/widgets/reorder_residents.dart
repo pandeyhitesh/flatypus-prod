@@ -136,7 +136,7 @@ class _ReorderResidentsState extends ConsumerState<ReorderResidents> {
                 });
               },
             ),
-            if (isLoading) showLoadingOverlay(),
+            if (isLoading) ShowLoadingOverlay(),
             // Container(
             //     color: ,
             //     child: Center(child: CircularProgressIndicator()))
@@ -144,11 +144,11 @@ class _ReorderResidentsState extends ConsumerState<ReorderResidents> {
         ),
       ),
       //exit House button
-      _exitHouse()
+      _exitHouse(context)
     ];
   }
 
-  Widget _exitHouse() {
+  Widget _exitHouse(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: SizedBox(
@@ -159,7 +159,7 @@ class _ReorderResidentsState extends ConsumerState<ReorderResidents> {
           iconData: Icons.exit_to_app,
           function: () {
             final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-            HouseMethods.removeUserFromHouse(ref: ref, userId: currentUserId);
+            HouseMethods.removeUserFromHouse(context: context, ref: ref, userId: currentUserId);
           },
           verticalPadding: 18,
         ),

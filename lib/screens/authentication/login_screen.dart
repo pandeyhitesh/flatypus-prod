@@ -1,3 +1,4 @@
+import 'package:flatypus/common/widgets/base_layout.dart';
 import 'package:flatypus/state/providers/auth_provider.dart';
 import 'package:flatypus/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -5,15 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
-  void _onPressedMethod(WidgetRef ref) async {
-    final userCred = await ref.read(authProvider.notifier).login();
+  void _onPressedMethod(BuildContext context, WidgetRef ref) async {
+    final userCred = await ref.read(authProvider.notifier).login(context);
     // print("userCred = $userCred");
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+    return BaseLayout(
       body: SafeArea(
         child: Column(
           children: [
@@ -42,7 +42,7 @@ class LoginScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -59,7 +59,7 @@ class LoginScreen extends ConsumerWidget {
                       ),
                       padding: EdgeInsets.zero,
                     ),
-                    onPressed: ()=>_onPressedMethod(ref),
+                    onPressed: () => _onPressedMethod(context, ref),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Row(
@@ -71,8 +71,9 @@ class LoginScreen extends ConsumerWidget {
                             width: 40,
                             child: AspectRatio(
                               aspectRatio: 1,
-                              child:
-                                  Image.asset('assets/images/google-logo.png'),
+                              child: Image.asset(
+                                'assets/images/google-logo.png',
+                              ),
                             ),
                           ),
                           const Expanded(

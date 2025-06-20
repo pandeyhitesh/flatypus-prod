@@ -1,5 +1,6 @@
 import 'package:color_log/color_log.dart';
 import 'package:flatypus/common/methods.dart';
+import 'package:flatypus/common/widgets/base_layout.dart';
 import 'package:flatypus/common/widgets/custom_text_n_icon_button.dart';
 import 'package:flatypus/common/widgets/text_input_field_custom.dart';
 import 'package:flatypus/screens/chatroom/widgets/show_message_list.dart';
@@ -83,66 +84,68 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(child: ShowMessageList(scrollController: _scrollController)),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.primaryColor,
-            borderRadius: BorderRadius.only(
-              topLeft: kRadius,
-              topRight: kRadius,
+    return BaseLayout(
+      body: Column(
+        children: [
+          Expanded(child: ShowMessageList(scrollController: _scrollController)),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.primaryColor,
+              borderRadius: BorderRadius.only(
+                topLeft: kRadius,
+                topRight: kRadius,
+              ),
+              border: Border(
+                top: BorderSide(
+                  width: 1,
+                  color: AppColors.white.withAlpha(alphaFromOpacity(.5)),
+                ),
+              ),
             ),
-            border: Border(
-              top: BorderSide(
-                width: 1,
-                color: AppColors.white.withAlpha(alphaFromOpacity(.5)),
+            padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  CustomTextInputField(
+                    hintText: 'Type a message',
+                    controller: _messageTextController,
+                    focusNode: _focusNode,
+                    onChanged: _onMessageTextChange,
+                    validationFunction: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Message cannot be empty';
+                      }
+                      return null;
+                    },
+                    onTap: () {
+                      _resetFloatingAddButton(false);
+                      _formKey.currentState!.reset();
+                    },
+                    onFieldSubmitted: () {
+                      _resetFloatingAddButton(true);
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6.0, bottom: 10),
+                        child: CustomTextNIconButton(
+                          label: 'Send',
+                          icon: Icons.send,
+                          onTap: _onSendButtonClick,
+                          backgroundColor: _sendButtonColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
-          padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                CustomTextInputField(
-                  hintText: 'Type a message',
-                  controller: _messageTextController,
-                  focusNode: _focusNode,
-                  onChanged: _onMessageTextChange,
-                  validationFunction: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Message cannot be empty';
-                    }
-                    return null;
-                  },
-                  onTap: () {
-                    _resetFloatingAddButton(false);
-                    _formKey.currentState!.reset();
-                  },
-                  onFieldSubmitted: () {
-                    _resetFloatingAddButton(true);
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6.0, bottom: 10),
-                      child: CustomTextNIconButton(
-                        label: 'Send',
-                        icon: Icons.send,
-                        onTap: _onSendButtonClick,
-                        backgroundColor: _sendButtonColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

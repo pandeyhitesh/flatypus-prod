@@ -4,6 +4,9 @@ from firebase_admin import firestore, messaging
 
 from common.collections import Collections
 
+# app = initialize_app()
+# db = firestore.client()
+
 def get_first_name_from_display_name(display_name, isSelf) -> str:
     if display_name:
             splt_name = display_name.split(' ')
@@ -14,7 +17,11 @@ def get_first_name_from_display_name(display_name, isSelf) -> str:
 
 
 
-@https_fn.on_request()
+@https_fn.on_request(
+    max_instances=10,  # Limit the maximum instances to control scaling
+    memory=256,    # Increase memory allocation
+    # timeout_seconds=60  # Set a reasonable timeout
+)
 def new_user_added_to_house(req) -> None:
     print(f"▶️ Execution started for 'new_user_added_to_house'")
     try:
@@ -37,6 +44,7 @@ def new_user_added_to_house(req) -> None:
         # get house information using houseId
         fcm_tokens = []
         flatmate_names = []
+        
         db = firestore.client()
         house_ref = db.collection(Collections.HOUSES).document(house_id)
         house_data = house_ref.get().to_dict()

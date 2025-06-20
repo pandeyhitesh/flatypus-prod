@@ -38,3 +38,10 @@ final taskNameTextStyle = TextStyle(
     color: AppColors.white.withAlpha(230),
     height: 1.2,
     fontFamily: kHeaderFontFamily);
+
+final mediumHeaderTextStyle = TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.w500,
+  color: AppColors.white,
+  letterSpacing: .5,
+);

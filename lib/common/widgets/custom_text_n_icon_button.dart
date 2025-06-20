@@ -32,24 +32,30 @@ class CustomTextNIconButton extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(left: leftPadding),
       child: Container(
-        height: 32,
+        height: 34,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
           color: backgroundColor,
         ),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(
+                color: foregroundColor.withAlpha(alphaFromOpacity(.5)),
+                width: 1.5,
               ),
-              visualDensity: VisualDensity.compact,
-              foregroundColor: foregroundColor,
-              backgroundColor: foregroundColor.withOpacity(.1),
-              surfaceTintColor: Colors.transparent,
-              elevation: 0,
-              alignment: Alignment.center,
-              padding:
-                  buttonPadding ?? const EdgeInsets.only(left: 16, right: 12)),
+            ),
+            visualDensity: VisualDensity.compact,
+            foregroundColor: foregroundColor,
+            backgroundColor: foregroundColor.withOpacity(.1),
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
+            alignment: Alignment.center,
+            padding:
+                buttonPadding ?? const EdgeInsets.only(left: 16, right: 12),
+          ),
           onPressed: () => onTap(),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +64,11 @@ class CustomTextNIconButton extends StatelessWidget {
               Flexible(
                 child: Text(
                   label,
-                  style: const TextStyle(fontSize: 14, letterSpacing: .3, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    letterSpacing: .3,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               if (label.isNotEmpty) const SizedBox(width: 5),

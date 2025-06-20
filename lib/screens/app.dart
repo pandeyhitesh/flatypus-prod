@@ -35,11 +35,11 @@ List<Widget> _appScreens = [
 // List<int> appScreensIndex = [0, 1, 2, 3];
 enum AppScreens { home, chatroom, tasks, profile }
 
-List<PreferredSizeWidget?> _appBarForScreens = [
+List<PreferredSizeWidget?> _appBarForScreens(BuildContext context) => [
   null,
   _appBar('Chatroom'),
   _appBar('Tasks'),
-  _profileAppBar,
+  _profileAppBar(context),
 ];
 
 _appBar(String title) => AppBar(
@@ -48,7 +48,7 @@ _appBar(String title) => AppBar(
   backgroundColor: kBackgroundColor,
 );
 
-get _profileAppBar => AppBar(
+_profileAppBar(BuildContext context) => AppBar(
   backgroundColor: kBackgroundColor,
   surfaceTintColor: kTransparent,
   actions: [
@@ -60,7 +60,7 @@ get _profileAppBar => AppBar(
               label: 'Log Out',
               icon: Icons.logout,
               onTap: () async {
-                await ProfileMethods.onLogoutButtonTap(ref);
+                await ProfileMethods.onLogoutButtonTap(context, ref);
               },
               foregroundColor: AppColors.yellowAccent,
             ),
@@ -76,7 +76,7 @@ class _AppState extends ConsumerState<App> {
     return Scaffold(
       key: ValueKey('app_screen'),
       resizeToAvoidBottomInset: true,
-      appBar: _appBarForScreens[selectedIndex],
+      appBar: _appBarForScreens(context)[selectedIndex],
       backgroundColor: AppColors.backgroundColor,
       floatingActionButton:
           ref.watch(floatingAddButtonControllerProvider)

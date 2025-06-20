@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flatypus/common/methods/loading_methods.dart';
 import 'package:flatypus/common/snackbar.dart';
 import 'package:flatypus/common/widgets/text_input_field_custom.dart';
 import 'package:flatypus/state/controllers/loading_controller.dart';
@@ -27,7 +28,7 @@ class _UnorderedListInputScreenState
 
   Future<void> _addItem() async {
     if (_controller.text.trim().isNotEmpty) {
-      ref.read(loadingControllerProvider.notifier).state = true;
+      Loader.startLoading(context, ref);
       List<String> updatedItems = [..._items, _controller.text.trim()];
       final result = await ref
           .read(tasksProvider.notifier)
@@ -44,12 +45,12 @@ class _UnorderedListInputScreenState
       } else {
         showErrorSnackbar(label: 'Failed to add new activity!');
       }
-      ref.read(loadingControllerProvider.notifier).state = false;
+      Loader.stopLoading(context, ref);
     }
   }
 
   Future<void> _removeItem(int index) async {
-    ref.read(loadingControllerProvider.notifier).state = true;
+    Loader.startLoading(context, ref);
     List<String> updatedItems = [..._items];
     updatedItems.removeAt(index);
     final result = await ref
@@ -65,7 +66,7 @@ class _UnorderedListInputScreenState
       showErrorSnackbar(label: 'Failed to remove the activity!');
     }
 
-    ref.read(loadingControllerProvider.notifier).state = false;
+    Loader.stopLoading(context, ref);
   }
 
   @override

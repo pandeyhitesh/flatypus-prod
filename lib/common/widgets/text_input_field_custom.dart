@@ -1,3 +1,4 @@
+import 'package:flatypus/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -21,6 +22,10 @@ class CustomTextInputField extends StatelessWidget {
     this.onFieldSubmitted,
     this.onTap,
     this.onChanged,
+    this.textAlign,
+    this.fontSize,
+    this.autofocus = false,
+    this.prefixText,
   });
   final String hintText;
   final TextEditingController controller;
@@ -36,12 +41,16 @@ class CustomTextInputField extends StatelessWidget {
   final Function? onFieldSubmitted;
   final Function? onTap;
   final ValueChanged<String>? onChanged;
+  final TextAlign? textAlign;
+  final double? fontSize;
+  final bool autofocus;
+  final String? prefixText;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horzPadding ? 6.0 : 0),
-      child: TextFormField(
+      child: TextFormField(autofocus: autofocus,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: hintTextStyle,
@@ -68,10 +77,20 @@ class CustomTextInputField extends StatelessWidget {
                     icon: Icon(suffixIcon, size: 18),
                     onPressed: () => suffixOnTap?.call(),
                   ),
+          prefixText: prefixText,
+          prefixStyle: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w600,
+            color: AppColors.yellowAccent2
+          )
         ),
+
         controller: controller,
         focusNode: focusNode,
-        style: inputTextStyle,
+        style:
+            fontSize == null
+                ? inputTextStyle
+                : inputTextStyle.copyWith(fontSize: fontSize),
         validator: validationFunction,
         maxLength: maxLength,
         inputFormatters: inputFormatters,
@@ -79,6 +98,9 @@ class CustomTextInputField extends StatelessWidget {
         onFieldSubmitted: (_) => onFieldSubmitted?.call(),
         onTap: () => onTap?.call(),
         onChanged: onChanged,
+        textAlign: textAlign ?? TextAlign.start,
+        cursorColor: AppColors.yellowAccent2,
+        cursorRadius: Radius.circular(10),
       ),
     );
   }

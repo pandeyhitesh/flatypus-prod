@@ -110,7 +110,7 @@ BoxDecoration customCardDecoration(
       borderRadius: BorderRadius.circular(borderRadius ?? 15),
       color: bgColor ?? AppColors.primaryColor,
       border: Border.all(
-        color: (borderColor ?? AppColors.white).withOpacity(.3),
+        color: borderColor ?? (AppColors.white).withOpacity(.3),
         width: borderWidth ?? 1,
       ),
       boxShadow: [

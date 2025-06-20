@@ -98,4 +98,27 @@ class UserModel {
         ? ''
         : '${(date.month).toString().padLeft(2, '0')}-${(date.day).toString().padLeft(2, '0')}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserModel &&
+          runtimeType == other.runtimeType &&
+          uid == other.uid &&
+          displayName == other.displayName &&
+          email == other.email &&
+          photoURL == other.photoURL &&
+          phoneNumber == other.phoneNumber &&
+          emailVerified == other.emailVerified &&
+          dobMonthDate == other.dobMonthDate;
+
+  @override
+  int get hashCode =>
+      uid.hashCode ^
+      displayName.hashCode ^
+      email.hashCode ^
+      photoURL.hashCode ^
+      phoneNumber.hashCode ^
+      emailVerified.hashCode ^
+      dobMonthDate.hashCode;
 }

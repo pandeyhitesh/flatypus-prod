@@ -1,3 +1,4 @@
+import 'package:flatypus/common/widgets/base_layout.dart';
 import 'package:flatypus/screens/app.dart';
 import 'package:flatypus/state/controllers/loading_controller.dart';
 import 'package:flatypus/state/notifires/auth_notifier.dart';
@@ -14,30 +15,9 @@ class AuthScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authStatus = ref.watch(authProvider);
-    final isLoading = ref.watch(loadingControllerProvider);
-    return Stack(
-      children: [
-        authStatus == AuthStatus.loggedIn ? const App() : const LoginScreen(),
-        Consumer(
-          builder: (context, ref, _) {
-            if (isLoading) {
-              return Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                color: AppColors.primaryColor.withAlpha(150),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.secondaryColor,
-                    strokeWidth: 5,
-                    strokeCap: StrokeCap.round,
-                  ),
-                ),
-              );
-            }
-            return const SizedBox();
-          },
-        )
-      ],
+    return BaseLayout(
+      body:
+          authStatus == AuthStatus.loggedIn ? const App() : const LoginScreen(),
     );
   }
 }

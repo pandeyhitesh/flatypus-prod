@@ -105,6 +105,27 @@ class _MyAppState extends ConsumerState<MyApp> {
             fontSize: 16,
             fontFamily: 'Mukta',
           ),
+          headlineSmall: TextStyle(
+            color: AppColors.white.withAlpha(alphaFromOpacity(.9)),
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            fontFamily: 'Mukta',
+          ),
+          headlineMedium: TextStyle(
+            color: AppColors.white.withAlpha(alphaFromOpacity(.9)),
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            fontFamily: 'Mukta',
+          ),
+          headlineLarge: TextStyle(
+            color: AppColors.white.withAlpha(alphaFromOpacity(.9)),
+            fontWeight: FontWeight.w600,
+            fontSize: 24,
+            fontFamily: 'Mukta',
+          ),
+
+
+
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: AppColors.secondaryColor.withAlpha(200),
