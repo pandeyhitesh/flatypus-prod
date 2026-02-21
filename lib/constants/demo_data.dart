@@ -1,6 +1,5 @@
-import 'package:flatypus/common/enums.dart';
-
-import '../models/space_model.dart';
+import 'package:flatypus/features/space/data/models/space_model.dart';
+import 'package:flatypus/core/utils/enums.dart';
 
 List<SpaceModel> suggestedSpaces = [
   SpaceModel(id: '', name: 'Kitchen', houseKey: ''),
