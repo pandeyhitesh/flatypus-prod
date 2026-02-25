@@ -13,29 +13,19 @@ class HouseRepositoryImpl implements HouseRepository {
       service.createHouse(request);
 
   @override
-  Future<House> getHouse(String id) => service.getHouse(id);
+  Future<House> getHouse(String houseId) => service.getHouse(houseId);
 
   @override
-  Future<void> deleteHouse(String houseId) {
-    // TODO: implement deleteHouse
-    throw UnimplementedError();
-  }
+  Future<House> joinHouse(String houseKey) => service.joinHouse(houseKey);
 
   @override
-  Future<AssociatedHousesResponse> getAssociatedHouses() {
-    // TODO: implement getAssociatedHouses
-    throw UnimplementedError();
-  }
+  Future<AssociatedHousesResponse> getAssociatedHouses() =>
+      service.getAssociatedHouses();
 
   @override
-  Future<House> joinHouse(String houseId) {
-    // TODO: implement joinHouse
-    throw UnimplementedError();
-  }
+  Future<void> deleteHouse(String houseId) => service.deleteHouse(houseId);
 
   @override
-  Future<House> updateMemberRole(UpdateMemberRoleRequest request) {
-    // TODO: implement updateMemberRole
-    throw UnimplementedError();
-  }
+  Future<House> updateMemberRole(UpdateMemberRoleRequest request) =>
+      service.updateMemberRole(request);
 }

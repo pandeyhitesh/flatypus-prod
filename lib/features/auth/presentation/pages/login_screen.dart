@@ -1,6 +1,7 @@
 
 import 'package:flatypus/features/auth/presentation/providers/auth_providers.dart';
-import 'package:flatypus/features/house/presentation/pages/house_screen.dart';
+import 'package:flatypus/features/home/presentation/pages/home_screen.dart';
+import 'package:flatypus/features/house/presentation/pages/add_house_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,7 +12,7 @@ class LoginScreen extends ConsumerWidget {
       final userCredential = await ref.read(signInWithGoogleProvider.future);
       print("userCred = $userCredential");
       if (userCredential != null && context.mounted) {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> HouseScreen()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> HomeScreen()));
       }
     } catch (e) {
       if (context.mounted) {

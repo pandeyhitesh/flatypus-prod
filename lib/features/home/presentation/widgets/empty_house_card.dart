@@ -1,6 +1,6 @@
 import 'package:flatypus/core/theme/app_colors.dart';
 import 'package:flatypus/core/utils/methods.dart';
-import 'package:flatypus/features/house/presentation/pages/search_house.dart';
+import 'package:flatypus/features/house/presentation/pages/add_house_screen.dart';
 import 'package:flutter/material.dart';
 
 Widget emptyHouseCard(BuildContext context) => Expanded(
@@ -37,7 +37,7 @@ Widget addHouseButton(BuildContext context) => Padding(
               borderRadius: BorderRadius.circular(16)),
           // padding: EdgeInsets.zero,
         ),
-        onPressed: () => push(context, SearchHouse()),
+        onPressed: () => push(context, AddHouseScreen()),
         child: const Text(
           'Add House',
           style: TextStyle(

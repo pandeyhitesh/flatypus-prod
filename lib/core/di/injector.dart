@@ -14,6 +14,10 @@ import 'package:flatypus/features/house/data/repositories/house_repo.dart';
 import 'package:flatypus/features/house/domain/repositories/house_repository.dart';
 import 'package:flatypus/features/house/domain/usecases/create_house.dart';
 import 'package:flatypus/features/house/domain/usecases/get_house.dart';
+import 'package:flatypus/features/house/domain/usecases/delete_house.dart';
+import 'package:flatypus/features/house/domain/usecases/get_associated_houses.dart';
+import 'package:flatypus/features/house/domain/usecases/join_house.dart';
+import 'package:flatypus/features/house/domain/usecases/update_member_role.dart';
 
 
 
@@ -32,6 +36,18 @@ final createHouseUsecaseProvider = Provider(
 );
 final getHouseUsecaseProvider = Provider(
   (ref) => GetHouseUseCase(ref.read(houseRepoProvider)),
+);
+final joinHouseUsecaseProvider = Provider(
+  (ref) => JoinHouseUseCase(ref.read(houseRepoProvider)),
+);
+final getAssociatedHousesUsecaseProvider = Provider(
+  (ref) => GetAssociatedHousesUseCase(ref.read(houseRepoProvider)),
+);
+final deleteHouseUsecaseProvider = Provider(
+  (ref) => DeleteHouseUseCase(ref.read(houseRepoProvider)),
+);
+final updateMemberRoleUsecaseProvider = Provider(
+  (ref) => UpdateMemberRoleUseCase(ref.read(houseRepoProvider)),
 );
 
 
