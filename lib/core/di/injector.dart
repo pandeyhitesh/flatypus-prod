@@ -61,7 +61,7 @@ final authRemoteDSProvider = Provider<AuthRemoteDataSource>(
 );
 // REPOSITORY
 final authRepoProvider = Provider<AuthRepository>(
-  (ref) => AuthRepositoryImpl(ref.read(authRemoteDSProvider)),
+  (ref) => AuthRepositoryImpl(ref.read(authRemoteDSProvider), ref),
 );
 // Usecases
 final googleSignInUsecaseProvider = Provider<SignInWithGoogleUseCase>(
@@ -73,6 +73,6 @@ final logoutUsecaseProvider = Provider<LogoutUsecase>(
 final loggedInUserUseCaseProvider = Provider<LoggedInUserUsecase>(
   (ref) => LoggedInUserUsecase(ref.read(authRepoProvider)),
 );
-final addUserIdInDbUseCaseProvider = Provider<AddUseridInDbUseCase>(
-  (ref) => AddUseridInDbUseCase(ref.read(authRepoProvider)),
-);
+// final addUserIdInDbUseCaseProvider = Provider<AddUseridInDbUseCase>(
+//   (ref) => AddUseridInDbUseCase(ref.read(authRepoProvider)),
+// );

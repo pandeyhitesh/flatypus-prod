@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flatypus/core/di/injector.dart';
+import 'package:flatypus/features/auth/data/repositories/auth_repo.dart';
+import 'package:flatypus/features/auth/presentation/providers/notifiers/token_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final dioProvider = Provider<Dio>((ref){
+final dioProvider = Provider<Dio>((ref) {
   const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
     defaultValue: 'https://flatipus-backend-production.up.railway.app/',
@@ -14,63 +16,47 @@ final dioProvider = Provider<Dio>((ref){
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       sendTimeout: const Duration(seconds: 30),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: {"Content-Type": "application/json"},
     ),
   );
 
   // Loging
-  dio.interceptors.add(LogInterceptor(
-    requestBody: true,
-    responseBody: true,
-  ));
+  dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
   // Auth Interceptor
   dio.interceptors.add(
     InterceptorsWrapper(
-      onRequest: (options, handler) async{
-        try {
-          final user = FirebaseAuth.instance.currentUser;
-          if (user != null) {
-            // Always fetch a fresh token; Firebase caches and auto-refreshes it
-            // final token = // TODO: access token of the user
-            final token = await user.getIdToken();
-            // options.headers["Authorization"] = "Bearer $token";
-            print("Added auth token to request: $token");
-          }
-
-        } catch (e) {
-          print("Error fetching token: $e");
-          // If token fetch fails, let the request proceed unauthenticated.
-          // The server will respond with 401 which is caught in onError below.
+      onRequest: (options, handler) async {
+        // Read the backend access_token from the in-memory token store
+        final accessToken = ref.read(tokenProvider)?.accessToken;
+        if (accessToken != null) {
+          options.headers['Authorization'] = 'Bearer $accessToken';
         }
         return handler.next(options);
       },
-      onError: (error, handler) async{
+      onError: (error, handler) async {
         // Handle token expiry: refresh and retry once
         if (error.response?.statusCode == 401) {
           try {
-            final user = FirebaseAuth.instance.currentUser;
-            if (user != null) {
-              // Force-refresh the token
-              final freshToken = await user.getIdToken(true);
-              final opts = error.requestOptions;
-              opts.headers["Authorization"] = "Bearer $freshToken";
+            // Re-exchange a fresh Firebase ID token for new backend tokens
+            final authRepo = ref.read(authRepoProvider) as AuthRepositoryImpl;
+            final newToken = await authRepo.refreshTokens();
 
-              // Retry the original request with the new token
+            if (newToken != null) {
+              // Retry the original request with the fresh access token
+              final opts = error.requestOptions;
+              opts.headers['Authorization'] = 'Bearer ${newToken.accessToken}';
               final response = await dio.fetch(opts);
               return handler.resolve(response);
             }
           } catch (e) {
-            // Refresh failed — propagate the original error
+            print('Token refresh in interceptor failed: $e');
           }
         }
         return handler.next(error);
       },
     ),
   );
-
 
   return dio;
 });
