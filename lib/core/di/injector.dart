@@ -1,3 +1,5 @@
+import 'package:flatypus/features/auth/data/datasources/auth_remote_ds.dart';
+import 'package:flatypus/features/auth/domain/usecases/add_userid_in_db.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flatypus/core/network/dio_client.dart';
 
@@ -53,9 +55,13 @@ final updateMemberRoleUsecaseProvider = Provider(
 
 
 /// -- Authentication --
-// Data soureces
+// DATA SOURCES
+final authRemoteDSProvider = Provider<AuthRemoteDataSource>(
+  (ref) => AuthRemoteDataSource(ref.read(dioProvider))
+);
+// REPOSITORY
 final authRepoProvider = Provider<AuthRepository>(
-  (ref) => AuthRepositoryImpl(),
+  (ref) => AuthRepositoryImpl(ref.read(authRemoteDSProvider)),
 );
 // Usecases
 final googleSignInUsecaseProvider = Provider<SignInWithGoogleUseCase>(
@@ -66,4 +72,7 @@ final logoutUsecaseProvider = Provider<LogoutUsecase>(
 );
 final loggedInUserUseCaseProvider = Provider<LoggedInUserUsecase>(
   (ref) => LoggedInUserUsecase(ref.read(authRepoProvider)),
+);
+final addUserIdInDbUseCaseProvider = Provider<AddUseridInDbUseCase>(
+  (ref) => AddUseridInDbUseCase(ref.read(authRepoProvider)),
 );

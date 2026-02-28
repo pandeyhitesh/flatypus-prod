@@ -6,4 +6,5 @@ abstract class AuthRepository {
   Future<UserCredential?> signInWithGoogle();
   Future<void> logOut();
   User? loggedInUser();
+  Future<Map<String, dynamic>> addUserIdInDb(String userId);
 }

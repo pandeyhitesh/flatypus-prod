@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flatypus/features/auth/data/datasources/auth_remote_ds.dart';
 import 'package:flatypus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepositoryImpl implements AuthRepository{
+  final AuthRemoteDataSource service;
+  AuthRepositoryImpl(this.service);
+
   @override
   Future<UserCredential?> signInWithGoogle() async{
     try{
@@ -18,6 +22,8 @@ class AuthRepositoryImpl implements AuthRepository{
         accessToken: googleAuth?.accessToken,
         idToken: googleAuth?.idToken,
       );
+
+      await service.addUserIdInDb(googleAuth?.idToken ?? '');
 
       // Once signed in, return the UserCredential
       return await FirebaseAuth.instance.signInWithCredential(credential);
@@ -36,5 +42,10 @@ class AuthRepositoryImpl implements AuthRepository{
   @override
   User? loggedInUser(){
     return FirebaseAuth.instance.currentUser;
+  }
+
+  @override
+  Future<Map<String, dynamic>> addUserIdInDb(String userId) async {
+    return  service.addUserIdInDb(userId);
   }
 }
