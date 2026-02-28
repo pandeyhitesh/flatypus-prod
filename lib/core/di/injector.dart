@@ -57,7 +57,7 @@ final updateMemberRoleUsecaseProvider = Provider(
 /// -- Authentication --
 // DATA SOURCES
 final authRemoteDSProvider = Provider<AuthRemoteDataSource>(
-  (ref) => AuthRemoteDataSource(ref.read(dioProvider))
+  (ref) => AuthRemoteDataSource(ref.read(authDioProvider))
 );
 // REPOSITORY
 final authRepoProvider = Provider<AuthRepository>(
