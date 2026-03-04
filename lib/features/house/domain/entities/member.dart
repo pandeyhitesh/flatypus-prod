@@ -1,18 +1,23 @@
-
 class Member {
-  final String id;
-  final String name;
-  final String email;
-  final String role;
+  final String? id;
+  final String? userId;
+  final String? name;
+  final String? email;
+  final String? role;
+  final String? photoURL;
+  final int? order;
 
   const Member({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.role,
+    this.id,
+    this.name,
+    this.email,
+    this.role,
+    this.userId,
+    this.photoURL,
+    this.order,
   });
 
   @override
   String toString() =>
-      'Member{id: $id, name: $name, email: $email, role: $role}';
+      'Member{id: $id, name: $name, email: $email, role: $role, userId: $userId, photoURL: $photoURL, order: $order}';
 }

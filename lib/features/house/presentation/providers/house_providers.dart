@@ -16,6 +16,7 @@ final houseProvider = StateNotifierProvider<HouseNotifier, AsyncValue<House?>>(
     ref.read(createHouseUsecaseProvider),
     ref.read(joinHouseUsecaseProvider),
     ref.read(deleteHouseUsecaseProvider),
+    ref.read(getHouseUsecaseProvider),
   ),
 );
 

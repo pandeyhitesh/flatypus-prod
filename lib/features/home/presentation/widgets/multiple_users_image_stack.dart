@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/core/utils/enums.dart';
 import 'package:flatypus/core/theme/app_colors.dart';
 import 'package:flatypus/features/home/presentation/widgets/user_profile_image.dart';
-import 'package:flatypus/features/house/presentation/providers/house_providers.dart';
-import 'package:flatypus/features/profile/data/models/user_model.dart';
+import 'package:flatypus/features/house/domain/entities/member.dart';
+import 'package:flatypus/features/profile/presentation/providers/members_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,8 +15,8 @@ class MultipleUsersImageStack extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // TODO: implement providers
-    // final houseAsync = ref.watch(houseProvider);
-    final users = <FlatypusUserModel>[];
+    final List<Member> members = ref.watch(membersProvider);
+    // final users = <FlatypusUserModel>[];
     // houseAsync.when(
     //   loading: () => const SizedBox(),
     //   error: (_, __) => const SizedBox(),
@@ -26,7 +26,7 @@ class MultipleUsersImageStack extends ConsumerWidget {
     //     return  
     //   }
     // );
-    return SizedBox(child: _showUserStack(users, context));
+    return SizedBox(child: _showUserStack(members, context));
     // return SizedBox(
     //   child: FutureBuilder(
     //     future: HouseService().getUsersInRoom(ref: ref),
@@ -41,7 +41,7 @@ class MultipleUsersImageStack extends ConsumerWidget {
     // );
   }
 
-  Widget _showUserStack(List<FlatypusUserModel> userList, BuildContext context) {
+  Widget _showUserStack(List<Member> userList, BuildContext context) {
     final count = userList.length > 4 ? userList.length - 4 : null;
     final userCount = userList.length < 5 ? userList.length : 4;
     return Stack(
@@ -52,13 +52,13 @@ class MultipleUsersImageStack extends ConsumerWidget {
     );
   }
 
-  Widget _individualImage(int index, FlatypusUserModel? user, {int? count}) {
-    if (user == null) return const SizedBox();
+  Widget _individualImage(int index, Member? member, {int? count}) {
+    if (member == null) return const SizedBox();
     return Positioned(
       left: index * 23,
       child: Stack(
         children: [
-          userProfileImage(photoURL: user.photoURL, level: Level.small),
+          userProfileImage(photoURL: member.photoURL, level: Level.small),
           if (index == 3 && count != null)
             Container(
               height: 30,

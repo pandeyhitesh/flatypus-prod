@@ -8,6 +8,12 @@ class HouseController {
   final Ref _ref;
   const HouseController(this._ref);
 
+  /// Call after any mutation that changes the user's house membership list.
+  /// Forces [associatedHousesProvider] to refetch fresh data from the API.
+  void _invalidateAssociatedHouses() {
+    _ref.invalidate(associatedHousesProvider);
+  }
+
   // ─── CREATE ──────────────────────────────────────────────────────────────
 
   Future<void> createHouse({
@@ -26,7 +32,10 @@ class HouseController {
     final state = _ref.read(houseProvider);
     state.when(
       data: (house) {
-        if (house != null) onSuccess?.call();
+        if (house != null) {
+          _invalidateAssociatedHouses();
+          onSuccess?.call();
+        }
       },
       error: (e, _) => onError?.call(e.toString()),
       loading: () {},
@@ -51,7 +60,10 @@ class HouseController {
     final state = _ref.read(houseProvider);
     state.when(
       data: (house) {
-        if (house != null) onSuccess?.call();
+        if (house != null) {
+          _invalidateAssociatedHouses();
+          onSuccess?.call();
+        }
       },
       error: (e, _) => onError?.call(e.toString()),
       loading: () {},
@@ -69,7 +81,10 @@ class HouseController {
 
     final state = _ref.read(houseProvider);
     state.when(
-      data: (_) => onSuccess?.call(),
+      data: (_) {
+        _invalidateAssociatedHouses();
+        onSuccess?.call();
+      },
       error: (e, _) => onError?.call(e.toString()),
       loading: () {},
     );

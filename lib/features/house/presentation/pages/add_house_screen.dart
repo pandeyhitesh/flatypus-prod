@@ -2,7 +2,6 @@ import 'package:flatypus/core/theme/app_colors.dart';
 import 'package:flatypus/core/theme/borders.dart';
 import 'package:flatypus/core/theme/textstyles.dart';
 import 'package:flatypus/core/utils/methods.dart';
-import 'package:flatypus/core/utils/methods/loading_methods.dart';
 import 'package:flatypus/core/utils/snackbar.dart';
 import 'package:flatypus/features/common/widgets/alernative_screen_button.dart';
 import 'package:flatypus/features/common/widgets/base_layout.dart';
