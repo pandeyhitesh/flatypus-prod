@@ -12,7 +12,7 @@ class AssociatedHouse extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final associatedHousesAsync = ref.watch(associatedHousesProvider);
+    final activeHouseAsync = ref.watch(activeHouseProvider);
 
     return Padding(
       padding: kHorizontalScrPadding,
@@ -24,28 +24,12 @@ class AssociatedHouse extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             componentHeader(AppStrings.associatedHouse),
-            associatedHousesAsync.when(
-              loading: () => Center(child: CircularProgressIndicator()),
+            activeHouseAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, __) => emptyHouseCard(context),
-              data: (response) {
-                // if no housed associated witht he user yet
-                if (response.houses.isEmpty) return emptyHouseCard(context);
-                // For now, always use the first house in the list
-                final firstHouseId = response.houses.first.id;
-                // fetch the house details
-                final houseDetailsAsync = ref.watch(
-                  getHouseProvider(firstHouseId),
-                );
-
-                return houseDetailsAsync.when(
-                  loading:
-                      () => Expanded(
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                  error: (_, __) => emptyHouseCard(context),
-                  data: (house) => Expanded(child: HouseInfoCard(house: house)),
-                );
-              },
+              data: (house) => house == null
+                  ? emptyHouseCard(context)
+                  : Expanded(child: HouseInfoCard(house: house)),
             ),
           ],
         ),

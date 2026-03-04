@@ -32,7 +32,7 @@ final updateMemberRoleProvider = StateNotifierProvider<
 /// Fetch a single house by ID.
 /// Usage: ref.watch(getHouseProvider('house-id'))
 final getHouseProvider = FutureProvider.family<House, String>(
-  (ref, houseId) => ref.read(getHouseUsecaseProvider)(houseId),
+  (ref, houseId) => ref.watch(getHouseUsecaseProvider)(houseId),
 );
 
 /// Fetch all houses associated with the current user.
@@ -40,3 +40,25 @@ final getHouseProvider = FutureProvider.family<House, String>(
 final associatedHousesProvider = FutureProvider<AssociatedHousesResponse>(
   (ref) => ref.read(getAssociatedHousesUsecaseProvider)(),
 );
+
+
+/// Single source of truth for the active house in the UI.
+///
+/// - On cold start: fetches from /house/mine → gets first house ID → fetches detail
+/// - After join/create/delete: reflects houseProvider state immediately
+/// - Always emits a fully populated House (with members) or null
+final activeHouseProvider = FutureProvider<House?>((ref) async {
+  // If houseProvider already has a house (post join/create), use it directly.
+  // This avoids a redundant network call.
+  final houseState = ref.watch(houseProvider);
+  final hotHouse = houseState.asData?.value;
+  if (hotHouse != null) return hotHouse;
+
+  // Cold start: nothing in houseProvider yet — fetch from /mine
+  final associated = await ref.watch(associatedHousesProvider.future);
+  if (associated.houses.isEmpty) return null;
+
+  // Fetch full detail (with members) for the first house
+  final firstId = associated.houses.first.id;
+  return ref.watch(getHouseProvider(firstId).future);
+});

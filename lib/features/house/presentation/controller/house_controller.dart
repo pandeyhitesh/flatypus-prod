@@ -12,6 +12,7 @@ class HouseController {
   /// Forces [associatedHousesProvider] to refetch fresh data from the API.
   void _invalidateAssociatedHouses() {
     _ref.invalidate(associatedHousesProvider);
+    _ref.invalidate(activeHouseProvider);
   }
 
   // ─── CREATE ──────────────────────────────────────────────────────────────
