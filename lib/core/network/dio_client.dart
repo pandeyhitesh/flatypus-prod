@@ -1,3 +1,4 @@
+import 'package:color_log/color_log.dart';
 import 'package:dio/dio.dart';
 import 'package:flatypus/core/di/injector.dart';
 import 'package:flatypus/features/auth/data/repositories/auth_repo.dart';
@@ -58,6 +59,7 @@ final dioProvider = Provider<Dio>((ref) {
       onRequest: (options, handler) async {
         // Read the backend access_token from the in-memory token store
         final accessToken = ref.read(tokenProvider)?.accessToken;
+        clog.error("In Dio Interceptor - Access Token: $accessToken");
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
         }

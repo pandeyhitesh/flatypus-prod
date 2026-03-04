@@ -90,7 +90,7 @@ class CurrentAssigneeCard extends ConsumerWidget {
     // TODO: implement providers
     // ref.watch(usersProvider);
     // final user = ref.read(usersProvider.notifier).getUserByUid(uId);
-    UserModel? user;
+    FlatypusUserModel? user;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,

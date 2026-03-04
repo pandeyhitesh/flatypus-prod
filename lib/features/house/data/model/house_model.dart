@@ -1,4 +1,4 @@
-import 'package:flatypus/features/house/data/model/user_order_model.dart';
+import 'package:flatypus/features/house/data/model/member_model.dart';
 import 'package:flatypus/features/house/domain/entities/house.dart';
 
 class HouseModel extends House {
@@ -7,33 +7,46 @@ class HouseModel extends House {
     super.displayName,
     super.houseKey,
     super.userOrder,
-    super.users, // Initialize super field
+    super.members, // Initialize super field
     super.address,
   });
 
   factory HouseModel.fromJson(Map<String, dynamic> json) {
     return HouseModel(
       id: json['id'],
-      displayName: json['displayName'],
-      houseKey: json['houseKey'],
-      userOrder:
-          json['userOrder'] == null
-              ? null
-              : (json['userOrder'] as List)
-                  .map((user) => UserOrderModel.fromJson(user))
-                  .toList(),
-      users: List<String>.from(json['users'] ?? []), // Deserialize user IDs
+      displayName: json['house_name'],
+      houseKey: json['house_key'],
+      userOrder: null,
+          // json['userOrder'] == null
+          //     ? null
+          //     : (json['userOrder'] as List)
+          //         .map((user) => UserOrderModel.fromJson(user))
+          //         .toList(),
+      members: null,
       address: json['address'],
+    );
+  }
+
+  factory HouseModel.fromDetailJson(Map<String, dynamic> json){
+    final houseData = json['house'] as Map<String, dynamic>;
+    final membersData = json['members'] as List<dynamic>? ?? [];
+    return HouseModel(
+      id: houseData['id'] as String?,
+      displayName: houseData['house_name'] as String?,
+      houseKey: houseData['house_key'] as String?,
+      address: houseData['address'] as String?,
+      userOrder: null,
+      members: membersData
+          .map((m) => MemberModel.fromJson(m as Map<String, dynamic>))
+          .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'displayName': displayName,
-      'houseKey': houseKey,
-      'userOrder': userOrder?.map((uOrder) => (uOrder as UserOrderModel).toJson()).toList(),
-      'users': users, // Serialize user IDs
+      'house_name': displayName,
+      'house_key': houseKey,
       'address': address,
     };
   }

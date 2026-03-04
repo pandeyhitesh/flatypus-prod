@@ -38,7 +38,7 @@ class ShowBacklogTaskList extends ConsumerWidget {
                 // final user = ref
                 //     .read(usersProvider.notifier)
                 //     .getUserByUid(task.assignedTo);
-                UserModel? user;
+                FlatypusUserModel? user;
                 return TaskItemCard(
                   task: task,
                   user: user,

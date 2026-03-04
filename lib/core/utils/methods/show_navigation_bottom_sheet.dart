@@ -56,12 +56,12 @@ class BottomSheetManager {
       }
       // TODO: implement users provider
       // final usersFromProvider = ref.read(usersProvider);
-      final usersFromProvider = <UserModel>[];
+      final usersFromProvider = <FlatypusUserModel>[];
       if (usersFromProvider.isEmpty) {
-        final user = UserModel.fromFirebaseUser(loggedInUser);
+        // final user = FlatypusUserModel.fromFirebaseUser(loggedInUser);
         //TODO: add user to Provider
         // ref.read(usersProvider.notifier).setUsers([user]);
-        phoneNumber = user.phoneNumber;
+        // phoneNumber = user.phoneNumber;
       } else {
         //TODO: add user to provider state
         // final user = ref

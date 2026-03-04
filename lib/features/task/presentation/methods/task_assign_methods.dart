@@ -46,7 +46,7 @@ class TaskAssignMethods {
     }
   }
 
-  static Future<UserModel?> getNextAssignedUser({
+  static Future<FlatypusUserModel?> getNextAssignedUser({
     WidgetRef? ref,
     Ref? notRef,
     required String? currentUserId,
@@ -103,7 +103,7 @@ class TaskAssignMethods {
       if (nextDate1 == null) return [];
       final task1 = currentTask.copyWith(
         scheduledDate: nextDate1,
-        assignedTo: assignedTo1?.uid,
+        assignedTo: assignedTo1?.id,
       );
       // get 2nd next schedule
       DateTime? nextDate2;
@@ -117,7 +117,7 @@ class TaskAssignMethods {
       if (nextDate2 == null) return [];
       final task2 = currentTask.copyWith(
         scheduledDate: nextDate2,
-        assignedTo: assignedTo2?.uid,
+        assignedTo: assignedTo2?.id,
       );
       return [task1, task2];
     } catch (e) {
@@ -141,7 +141,7 @@ class TaskAssignMethods {
         completedDate: DateTime.now(),
         completedBy: task.assignedTo,
         scheduledDate: getNextScheduleDate(task: task),
-        assignedTo: nextAssignedUser?.uid,
+        assignedTo: nextAssignedUser?.id,
         isSkipped: isSkipped,
       );
       dev.log('Updated Task request = $updatedTask');

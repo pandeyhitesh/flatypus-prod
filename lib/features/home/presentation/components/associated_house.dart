@@ -3,7 +3,7 @@ import 'package:flatypus/core/utils/strings.dart';
 import 'package:flatypus/features/common/widgets/component_header.dart';
 import 'package:flatypus/features/home/presentation/widgets/empty_house_card.dart';
 import 'package:flatypus/features/home/presentation/widgets/house_info_card.dart';
-import 'package:flatypus/features/house/domain/entities/house.dart';
+import 'package:flatypus/features/house/presentation/providers/house_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,9 +12,8 @@ class AssociatedHouse extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement house provider
-    // final house = ref.watch(houseProvider);
-    final House? house = null;
+    final associatedHousesAsync = ref.watch(associatedHousesProvider);
+
     return Padding(
       padding: kHorizontalScrPadding,
       child: SizedBox(
@@ -25,34 +24,32 @@ class AssociatedHouse extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             componentHeader(AppStrings.associatedHouse),
-            if (house != null) Expanded(child: HouseInfoCard(house: house)),
-            if (house == null) emptyHouseCard(context),
+            associatedHousesAsync.when(
+              loading: () => Center(child: CircularProgressIndicator()),
+              error: (_, __) => emptyHouseCard(context),
+              data: (response) {
+                // if no housed associated witht he user yet
+                if (response.houses.isEmpty) return emptyHouseCard(context);
+                // For now, always use the first house in the list
+                final firstHouseId = response.houses.first.id;
+                // fetch the house details
+                final houseDetailsAsync = ref.watch(
+                  getHouseProvider(firstHouseId),
+                );
+
+                return houseDetailsAsync.when(
+                  loading:
+                      () => Expanded(
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                  error: (_, __) => emptyHouseCard(context),
+                  data: (house) => Expanded(child: HouseInfoCard(house: house)),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
-
-  //
-  // Widget houseInfoCard(HouseModel house, BuildContext context) => Expanded(
-  //       child: Padding(
-  //         padding: const EdgeInsets.only(top: 8.0),
-  //         child: Container(
-  //           decoration: BoxDecoration(
-  //             color: AppColors.secondaryColor,
-  //             borderRadius: BorderRadius.circular(16),
-  //           ),
-  //           child: Column(
-  //             mainAxisAlignment: MainAxisAlignment.end,
-  //             crossAxisAlignment: CrossAxisAlignment.stretch,
-  //             children: [
-  //               _displayhouseKey(house),
-  //               // textWithIconHeader(value: house.houseKey??'House Id', icon: Icons.key,fontSize: 16, iconSize: 18),
-  //               _houseDetailsTab(house),
-  //               _userDetailsTab(context),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     );
 }

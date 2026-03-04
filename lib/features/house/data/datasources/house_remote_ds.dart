@@ -1,3 +1,4 @@
+import 'package:color_log/color_log.dart';
 import 'package:dio/dio.dart';
 import 'package:flatypus/core/network/api_routes.dart';
 import 'package:flatypus/features/house/data/dto/house_request_dto.dart';
@@ -15,11 +16,13 @@ class HouseRemoteDataSource {
 
   Future<HouseModel> getHouse(String id) async {
     final res = await dio.get(ApiRoutes.house.getById(id));
-    return HouseModel.fromJson(res.data);
+    return HouseModel.fromDetailJson(res.data as Map<String, dynamic>);
   }
 
   Future<HouseModel> joinHouse(String houseKey) async {
+    clog.debug('joinHouse request - house_key: $houseKey');
     final res = await dio.post(ApiRoutes.house.join, data: {'house_key': houseKey});
+    clog.debug('joinHouse response: ${res.data}');
     return HouseModel.fromJson(res.data);
   }
 

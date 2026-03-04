@@ -16,15 +16,15 @@ final sessionRestoreProvider = FutureProvider<void>((ref) async {
   if (user == null) return; // Not logged in, nothing to restore
 
   try {
-    // Force-refresh ensures we get a valid token even after long offline periods
-    final idToken = await user.getIdToken(true);
-    if (idToken == null) return;
-
     final authRepo = ref.read(authRepoProvider) as AuthRepositoryImpl;
-    await authRepo.restoreSession(idToken);
+    // restoreSession() calls GoogleSignIn().signInSilently() internally —
+    // no UI is shown, uses cached Google credentials to get a fresh Google
+    // ID token, then POSTs it to /auth/google-mobile for backend tokens.
+    await authRepo.restoreSession();
   } catch (e) {
-    // Network might be down. The Dio interceptor's 401 handler will
-    // re-exchange tokens lazily on the first API call.
+    // Silent failure: network down or Google session expired.
+    // The Dio interceptor's 401 handler will attempt recovery on the first
+    // API call, or the user will be prompted to log in again.
     print('Session restore failed (will retry on first API call): $e');
   }
 });

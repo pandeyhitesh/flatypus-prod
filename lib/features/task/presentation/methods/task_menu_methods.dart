@@ -72,7 +72,7 @@ class TaskMenuMethods {
         completedDate: DateTime.now(),
         completedBy: task.assignedTo,
         scheduledDate: TaskAssignMethods.getNextScheduleDate(task: task),
-        assignedTo: nextAssignedUser?.uid,
+        assignedTo: nextAssignedUser?.id,
       );
       // TODO: implement providers
 

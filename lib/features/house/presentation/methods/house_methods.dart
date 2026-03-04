@@ -112,7 +112,7 @@ class HouseMethods {
       // Loader.startLoading(context, ref);
       // final currentUser = FirebaseAuth.instance.currentUser;
       // if (currentUser == null) return;
-      // final user = UserModel.fromFirebaseUser(currentUser);
+      // final user = FlatypusUserModel.fromFirebaseUser(currentUser);
 
       // final isHouseAdded = await HouseService().addUserToHouse(
       //   house.houseKey!,
@@ -160,7 +160,7 @@ class HouseMethods {
       Loader.startLoading(context, ref);
       if (userId == null) {
         final selectedUser = ref.read(manageResidentsSelectionProvider);
-        userId = selectedUser?.uid;
+        userId = selectedUser?.id;
       }
       final currentLoggedInUser = FirebaseAuth.instance.currentUser;
       if (currentLoggedInUser?.uid == userId) {
@@ -307,24 +307,24 @@ class HouseMethods {
     }
   }
 
-  // static void scanQRCodeForHouseKey(BuildContext context, WidgetRef ref) async {
-  //   try {
-  //     final dynamic houseKey = await showCustomDialog<dynamic>(
-  //       parentContext: context,
-  //       headerText: 'Scan QR Code to join the house',
-  //       body: ScanQrForHouseKey(),
-  //     );
-  //     if (houseKey == null) return;
-  //     if (houseKey is! String) return;
-  //     if (context.mounted) {
-  //       searchHouseByHouseKey(context: context, houseKey: houseKey, ref: ref);
-  //     }
-  //   } catch (e) {
-  //     clog.error('Failed to Scan the QR Code for House key!. e: $e');
-  //     showErrorSnackbar(
-  //       label:
-  //           'Failed to Scan the QR Code for House key!. Enter the house key manually.',
-  //     );
-  //   }
-  // }
+  static void scanQRCodeForHouseKey(BuildContext context, WidgetRef ref) async {
+    // try {
+    //   final dynamic houseKey = await showCustomDialog<dynamic>(
+    //     parentContext: context,
+    //     headerText: 'Scan QR Code to join the house',
+    //     body: ScanQrForHouseKey(),
+    //   );
+    //   if (houseKey == null) return;
+    //   if (houseKey is! String) return;
+    //   if (context.mounted) {
+    //     searchHouseByHouseKey(context: context, houseKey: houseKey, ref: ref);
+    //   }
+    // } catch (e) {
+    //   clog.error('Failed to Scan the QR Code for House key!. e: $e');
+    //   showErrorSnackbar(
+    //     label:
+    //         'Failed to Scan the QR Code for House key!. Enter the house key manually.',
+    //   );
+    // }
+  }
 }

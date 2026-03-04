@@ -11,7 +11,7 @@ class AssignedUserCard extends StatelessWidget {
     this.initialsOnly = false,
   });
 
-  final UserModel? user;
+  final FlatypusUserModel? user;
   final double? height;
   final double? fontSize;
   final bool initialsOnly;
@@ -29,7 +29,7 @@ class AssignedUserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userName = user?.displayName ?? user?.email ?? 'User';
+    final userName = user?.name ?? user?.email ?? 'User';
     final displayText = initialsOnly ? getInitials(userName) : userName;
     return Container(
       height: height ?? 30,

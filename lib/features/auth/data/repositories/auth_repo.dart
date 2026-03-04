@@ -40,25 +40,40 @@ class AuthRepositoryImpl implements AuthRepository{
     return null;
   }
 
-  /// Called by [sessionRestoreProvider] on app start when Firebase already
-  /// has a persisted user. Silently re-exchanges for backend tokens.
-  Future<void> restoreSession(String firebaseIdToken) async {
-    await _exchangeAndStore(firebaseIdToken);
+  /// Called by [sessionRestoreProvider] on app start.
+  /// Uses GoogleSignIn.signInSilently() to recover the Google account without
+  /// any UI, then gets a fresh Google ID token to exchange for backend tokens.
+  ///
+  /// This is necessary because the backend requires a Google-issued ID token,
+  /// NOT a Firebase ID token — they are different JWTs from different issuers.
+  Future<void> restoreSession() async {
+    final googleIdToken = await _getFreshGoogleIdToken();
+    if (googleIdToken == null) return; 
+    await _exchangeAndStore(googleIdToken);
   }
 
   /// Called by the Dio interceptor on 401.
   /// Gets a fresh Firebase ID token and re-exchanges for new backend tokens.
   Future<AuthToken?> refreshTokens() async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return null;
-
-      final freshIdToken = await user.getIdToken(true);
-      if (freshIdToken == null) return null;
-
-      return await _exchangeAndStore(freshIdToken);
+      final googleIdToken = await _getFreshGoogleIdToken();
+      if(googleIdToken == null) return null;
+      return await _exchangeAndStore(googleIdToken);
     } catch (e) {
       print('refreshTokens error: $e');
+      return null;
+    }
+  }
+
+  Future<String?> _getFreshGoogleIdToken() async{
+    try{
+      final googleUser = await GoogleSignIn().signInSilently();
+      if(googleUser == null) return null;
+
+      final googleAuth = await googleUser.authentication;
+      return googleAuth.idToken;
+    } catch (e){
+      print('[ERROR] _getFreshGoogleIdToken error: $e');
       return null;
     }
   }

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flatypus/core/utils/enums.dart';
 import 'package:flatypus/core/theme/app_colors.dart';
 import 'package:flatypus/features/home/presentation/widgets/user_profile_image.dart';
+import 'package:flatypus/features/house/presentation/providers/house_providers.dart';
 import 'package:flatypus/features/profile/data/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,8 +15,17 @@ class MultipleUsersImageStack extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // TODO: implement providers
-    // final users = ref.watch(usersProvider);
-    final users = <UserModel>[];
+    // final houseAsync = ref.watch(houseProvider);
+    final users = <FlatypusUserModel>[];
+    // houseAsync.when(
+    //   loading: () => const SizedBox(),
+    //   error: (_, __) => const SizedBox(),
+    //   data: (house) {
+    //     final members = house?.members;
+    //     if (members == null || members.isEmpty) return const SizedBox();
+    //     return  
+    //   }
+    // );
     return SizedBox(child: _showUserStack(users, context));
     // return SizedBox(
     //   child: FutureBuilder(
@@ -31,7 +41,7 @@ class MultipleUsersImageStack extends ConsumerWidget {
     // );
   }
 
-  Widget _showUserStack(List<UserModel> userList, BuildContext context) {
+  Widget _showUserStack(List<FlatypusUserModel> userList, BuildContext context) {
     final count = userList.length > 4 ? userList.length - 4 : null;
     final userCount = userList.length < 5 ? userList.length : 4;
     return Stack(
@@ -42,7 +52,7 @@ class MultipleUsersImageStack extends ConsumerWidget {
     );
   }
 
-  Widget _individualImage(int index, UserModel? user, {int? count}) {
+  Widget _individualImage(int index, FlatypusUserModel? user, {int? count}) {
     if (user == null) return const SizedBox();
     return Positioned(
       left: index * 23,

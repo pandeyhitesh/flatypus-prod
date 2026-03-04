@@ -18,7 +18,7 @@ class TaskItemCard extends ConsumerWidget {
     required this.spaceName,
   });
   final TaskModel task;
-  final UserModel? user;
+  final FlatypusUserModel? user;
   final String spaceName;
 
   @override

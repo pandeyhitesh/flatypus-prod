@@ -18,6 +18,7 @@ class HouseInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (house == null) return const SizedBox();
+
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: Container(
@@ -30,7 +31,12 @@ class HouseInfoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             displayHouseKey(house!),
-            // textWithIconHeader(value: house.houseKey??'House Id', icon: Icons.key,fontSize: 16, iconSize: 18),
+            // textWithIconHeader(
+            //   value: house?.houseKey ?? 'House Id',
+            //   icon: Icons.key,
+            //   fontSize: 16,
+            //   iconSize: 18,
+            // ),
             houseDetailsTab(house!),
             userDetailsTab(context),
           ],
@@ -154,7 +160,7 @@ class HouseInfoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               displayHouseNameText(
-                label: house.displayName,
+                label: house.displayName ?? "House Name NA",
                 fontSize: fontSize,
               ),
               displayAddressText(label: house.address, fontSize: adrFontSize),

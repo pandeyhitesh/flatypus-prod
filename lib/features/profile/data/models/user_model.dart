@@ -1,82 +1,51 @@
 import 'package:color_log/color_log.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flatypus/features/profile/domain/entities/user.dart';
 
-class UserModel {
-  final String uid;
-  final String? displayName;
-  final String? email;
-  final String? photoURL;
-  final String? phoneNumber;
-  final bool? emailVerified;
-  final DateTime? dobMonthDate;
-
-  UserModel({
-    required this.uid,
-    this.displayName,
-    this.email,
-    this.phoneNumber,
-    this.photoURL,
-    this.emailVerified,
-    this.dobMonthDate,
+class FlatypusUserModel extends FlatypusUser {
+  FlatypusUserModel({
+    required super.id,
+    super.name,
+    super.email,
+    super.phoneNumber,
+    super.photoURL,
+    super.dobMonthDate,
   });
 
-  UserModel copyWith({
-    String? uid,
-    String? displayName,
-    String? email,
-    String? photoURL,
-    String? phoneNumber,
-    bool? emailVerified,
-    DateTime? dobMonthDate,
-  }) {
-    return UserModel(
-      uid: uid ?? this.uid,
-      displayName: displayName ?? this.displayName,
-      email: email ?? this.email,
-      photoURL: photoURL ?? this.photoURL,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      emailVerified: emailVerified ?? this.emailVerified,
-      dobMonthDate: dobMonthDate ?? this.dobMonthDate,
-    );
-  }
+  // Factory method to create a FlatypusUserModel from a Firebase User
+  // factory FlatypusUserModel.fromFirebaseUser(User user) {
+  //   return FlatypusUserModel(
+  //     id: user.uid,
+  //     name: user.displayName,
+  //     email: user.email,
+  //     phoneNumber: user.phoneNumber,
+  //     photoURL: user.photoURL,
+  //     emailVerified: user.emailVerified,
+  //   );
+  // }
 
-  // Factory method to create a UserModel from a Firebase User
-  factory UserModel.fromFirebaseUser(User user) {
-    return UserModel(
-      uid: user.uid,
-      displayName: user.displayName,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      photoURL: user.photoURL,
-      emailVerified: user.emailVerified,
-    );
-  }
-
-  // Method to convert UserModel to JSON
+  // Method to convert FlatypusUserModel to JSON
   Map<String, dynamic> toJson() {
     return {
-      'uid': uid,
-      'displayName': displayName,
+      'id': id,
+      'name': name,
       'email': email,
-      'phoneNumber': phoneNumber,
-      'photoURL': photoURL,
-      'emailVerified': emailVerified,
+      'phone_number': phoneNumber,
+      'photo_url': photoURL,
       // 'dateOfBirth': dob?.toIso8601String() ?? '',
-      'dobMonthDate': dateToDobMDString(dobMonthDate),
+      // 'dobMonthDate': dateToDobMDString(dobMonthDate),
     };
   }
 
-  // Method to create UserModel from JSON
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    clog.info('UserModel JSON = $json');
-    return UserModel(
-      uid: json['uid'],
-      displayName: json['displayName'],
+  // Method to create FlatypusUserModel from JSON
+  factory FlatypusUserModel.fromJson(Map<String, dynamic> json) {
+    clog.info('FlatypusUserModel JSON = $json');
+    return FlatypusUserModel(
+      id: json['id'],
+      name: json['name'],
       email: json['email'],
-      phoneNumber: json['phoneNumber'],
-      photoURL: json['photoURL'],
-      emailVerified: json['emailVerified'],
-      dobMonthDate: dobMDStringToDate(json['dobMonthDate']),
+      phoneNumber: json['phone_number'],
+      photoURL: json['photo_url'],
+      // dobMonthDate: dobMDStringToDate(json['dobMonthDate']),
     );
   }
 
@@ -98,27 +67,4 @@ class UserModel {
         ? ''
         : '${(date.month).toString().padLeft(2, '0')}-${(date.day).toString().padLeft(2, '0')}';
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is UserModel &&
-          runtimeType == other.runtimeType &&
-          uid == other.uid &&
-          displayName == other.displayName &&
-          email == other.email &&
-          photoURL == other.photoURL &&
-          phoneNumber == other.phoneNumber &&
-          emailVerified == other.emailVerified &&
-          dobMonthDate == other.dobMonthDate;
-
-  @override
-  int get hashCode =>
-      uid.hashCode ^
-      displayName.hashCode ^
-      email.hashCode ^
-      photoURL.hashCode ^
-      phoneNumber.hashCode ^
-      emailVerified.hashCode ^
-      dobMonthDate.hashCode;
 }

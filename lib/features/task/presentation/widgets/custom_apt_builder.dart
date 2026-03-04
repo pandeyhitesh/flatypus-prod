@@ -18,7 +18,7 @@ class CustomAppointmentBuilder extends ConsumerWidget {
     required this.spaces,
   });
   final TaskModel task;
-  final UserModel? user;
+  final FlatypusUserModel? user;
   final List<SpaceModel> spaces;
 
   @override

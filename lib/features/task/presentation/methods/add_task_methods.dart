@@ -28,7 +28,7 @@ class AddTaskMethods {
     final task = TaskModel(
       id: '',
       name: taskName,
-      assignedTo: ref.read(taskAssignedToProvider)?.uid,
+      assignedTo: ref.read(taskAssignedToProvider)?.id,
       scheduledDate: ref.read(taskDateSelectionControllerProvider),
       schedule: taskSchedule,
       spaceId: ref.read(spaceSelectionControllerProvider)?.id,

@@ -94,7 +94,7 @@ class ShowAgendaCalendar extends ConsumerWidget {
     // TODO: implement providers
     // final user = ref.read(usersProvider.notifier).getUserByUid(task.assignedTo);
     // final spaces = ref.read(spacesProvider);
-    UserModel? user;
+    FlatypusUserModel? user;
     final spaces = <SpaceModel>[];
     return CustomAppointmentBuilder(task: task, user: user, spaces: spaces);
   }

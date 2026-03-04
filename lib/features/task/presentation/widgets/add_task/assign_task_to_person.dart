@@ -22,18 +22,18 @@ class AssignTaskToPerson extends ConsumerWidget {
       child: SizedBox(
         width: kScreenWidth,
         child: DropdownButton<String>(
-          value: assignmentController?.uid,
+          value: assignmentController?.id,
           hint: Text(
             '-- Select Assignee --',
             style: TextStyle(color: AppColors.white.withOpacity(.5)),
           ),
           items:
-              houseController?.users!.map((usr) {
+              houseController?.members!.map((usr) {
                 // TODO: get user from provider
                 // final user = ref.read(usersProvider.notifier).getUserByUid(usr);
-                UserModel? user;
+                FlatypusUserModel? user;
                 return DropdownMenuItem(
-                  value: usr,
+                  value: usr.id,
                   child: AssignedUserCard(user: user),
                 );
               }).toList(),
@@ -45,7 +45,7 @@ class AssignTaskToPerson extends ConsumerWidget {
             // final selectedUser = ref
             //     .read(usersProvider.notifier)
             //     .getUserByUid(selectedUid);
-            UserModel? selectedUser;
+            FlatypusUserModel? selectedUser;
             if (selectedUser == null) return;
             ref.read(taskAssignedToProvider.notifier).state = selectedUser;
           },
